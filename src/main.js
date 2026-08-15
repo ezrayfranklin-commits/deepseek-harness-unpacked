@@ -82,7 +82,7 @@ function applyLocale(locale) {
   const t = locales[locale]; currentLocale = locale;
   document.documentElement.lang = locale;
   document.title = t.meta[0]; $('meta[name="description"]').content = t.meta[1];
-  setList('#nav a', t.nav); setText('.repo-link', t.source); $('#languageList').setAttribute('aria-label', t.language); $$('#languageList button').forEach(button => { const active = button.dataset.locale === locale; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+  setText('.repo-link', t.source); $('#languageList').setAttribute('aria-label', t.language); $$('#languageList button').forEach(button => { const active = button.dataset.locale === locale; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
   setText('.eyebrow', t.hero[0]); $('.eyebrow').insertAdjacentHTML('afterbegin', '<span class="pulse"></span>'); setText('.hero h1', t.hero[1], true); setText('.hero-copy', t.hero[2], true); setText('.star-cta span:nth-child(2)', t.star); setText('.secondary-cta', t.hero[3], true); setList('.metrics div>span', t.hero[4]); setText('.scroll', `<span></span>${t.hero[5]}`, true);
   setText('.chapter-no', t.manifesto[0]); setText('.manifesto blockquote', t.manifesto[1]); setText('.manifesto>p', t.manifesto[2]); $$('.thesis-grid article').forEach((a,i)=>{a.querySelector('span').textContent=t.manifesto[3][i][0];a.querySelector('h3').textContent=t.manifesto[3][i][1];a.querySelector('p').textContent=t.manifesto[3][i][2]});
   const heads = $$('.section-head'); [[t.architecture],[t.lifecycle],[t.client],[t.tools],[t.atlas]].forEach((group,i)=>{const h=heads[i],d=group[0];h.querySelector('span').textContent=d[0];h.querySelector('h2').innerHTML=d[1];h.querySelector(':scope>p').textContent=d[2]});
@@ -104,6 +104,4 @@ const copy = async button => { await navigator.clipboard.writeText('npx @deepsee
 
 const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.classList.add('visible');if(entry.target.classList.contains('metrics'))entry.target.querySelectorAll('[data-count]').forEach(el=>{const end=+el.dataset.count,start=performance.now(),duration=1300;const tick=now=>{const p=Math.min((now-start)/duration,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)});observer.unobserve(entry.target)}),{threshold:.15});
 document.querySelectorAll('.chapter,.reveal,.metrics').forEach(el=>observer.observe(el));
-const sections=[...document.querySelectorAll('main section[id]')];window.addEventListener('scroll',()=>{const current=sections.filter(s=>s.offsetTop<scrollY+innerHeight*.45).pop();$$('#nav a').forEach(a=>a.classList.toggle('active',current&&a.hash===`#${current.id}`))},{passive:true});
-
 applyLocale('zh-CN');
