@@ -2,6 +2,10 @@
 
 一个面向中文开发者的 DeepSeek Harness Web 客户端交互式源码解析站。
 
+## 在线阅读
+
+**[打开 DeepSeek Harness Unpacked →](https://ezrayfranklin-commits.github.io/deepseek-harness-unpacked/)**
+
 ## 本地运行
 
 ```bash
