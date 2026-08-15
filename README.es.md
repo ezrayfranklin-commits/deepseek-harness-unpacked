@@ -24,6 +24,10 @@ Una guía interactiva del código fuente del cliente web de DeepSeek Harness, di
 
 ![Árbol completo de herramientas agrupadas por función](docs/images/tool-system.png)
 
+## Apoyo de la comunidad
+
+[LINUX DO](https://linux.do/) · Where possible begins.
+
 ## Ejecutar en local
 
 ```bash

@@ -1,0 +1,3 @@
+.community-link{border:1px solid rgba(82,217,255,.28);padding:10px 14px;transition:background .2s,border-color .2s}
+.community-link:hover{background:rgba(82,217,255,.07);border-color:var(--cyan)}
+@media(max-width:800px){footer{gap:12px}.community-link{padding:8px 10px}.back-top{display:none}}

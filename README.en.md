@@ -24,6 +24,10 @@ An interactive source-code guide to the DeepSeek Harness web client, available i
 
 ![Complete tool tree grouped by responsibility](docs/images/tool-system.png)
 
+## Community support
+
+[LINUX DO](https://linux.do/) · Where possible begins.
+
 ## Run locally
 
 ```bash

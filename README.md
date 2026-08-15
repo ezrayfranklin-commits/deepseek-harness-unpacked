@@ -24,6 +24,10 @@
 
 ![按职责展开的完整工具树](docs/images/tool-system.png)
 
+## 社区支持
+
+[LINUX DO](https://linux.do/) · Where possible begins.
+
 ## 本地运行
 
 ```bash

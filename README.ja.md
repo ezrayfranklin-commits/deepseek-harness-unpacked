@@ -24,6 +24,10 @@ DeepSeek Harness の Web クライアントをソースコードから読み解�
 
 ![役割別に整理されたツールツリー](docs/images/tool-system.png)
 
+## コミュニティサポート
+
+[LINUX DO](https://linux.do/) · Where possible begins.
+
 ## ローカルで実行
 
 ```bash

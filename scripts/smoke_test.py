@@ -18,6 +18,7 @@ with sync_playwright() as p:
     assert page.locator(".star-cta").get_attribute("href") == "https://github.com/ezrayfranklin-commits/deepseek-harness-unpacked"
     assert "Star" in page.locator(".star-cta").inner_text()
     assert page.locator("#languageList button:visible").count() == 4
+    assert page.locator(".community-link").get_attribute("href") == "https://linux.do/"
     assert page.locator("#toolCatalog button").count() == 52
     assert page.locator("#toolCatalog .tool-branch").count() == 9
     assert page.locator("#toolCatalog .tool-tree-root").count() == 1
@@ -43,6 +44,7 @@ with sync_playwright() as p:
         assert page.locator("html").get_attribute("lang") == locale
         assert title_text in page.locator(".hero h1").inner_text()
         assert page.locator("#commandCatalog article").first.locator("p").inner_text() == {"en":"Record feedback for this session.","es":"Registrar comentarios sobre esta sesión.","ja":"このセッションへのフィードバックを記録します。","zh-CN":"记录这次会话的反馈。"}[locale]
+        assert {"en":"COMMUNITY SUPPORT","es":"APOYO DE LA COMUNIDAD","ja":"コミュニティサポート","zh-CN":"社区支持"}[locale] in page.locator(".community-link").inner_text()
         page.locator("#toolCatalog .tool-node").first.click()
         assert {"en":"Custom editing tool","es":"pertenece a la rama","ja":"に属し","zh-CN":"属于"}[locale] in page.locator("#toolDetail p").inner_text()
         if locale in ("en", "es"):
