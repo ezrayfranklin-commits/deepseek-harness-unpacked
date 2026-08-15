@@ -19,13 +19,17 @@ with sync_playwright() as p:
     assert "Star" in page.locator(".star-cta").inner_text()
     assert page.locator("#languageList button:visible").count() == 4
     assert page.locator("#toolCatalog button").count() == 52
+    assert page.locator("#toolCatalog .tool-branch").count() == 9
+    assert page.locator("#toolCatalog .tool-tree-root").count() == 1
     assert page.locator("#architectureGroups .architecture-group").count() == 49
     assert page.locator("#commandCatalog article").count() == 7
     page.locator("#toolSearch").fill("cordis_")
     assert page.locator("#toolCatalog button").count() == 7
+    assert page.locator("#toolCatalog .tool-branch").count() == 1
     page.locator("#toolCatalog button").first.click()
     assert "@deepseek-ai/dsh-tool-cordis" in page.locator("#toolDetail").inner_text()
     page.locator("#toolSearch").fill("")
+    page.locator("#tools").screenshot(path=str(shots / "tool-tree.png"))
     page.locator("#architectureSearch").fill("ui-model-selection")
     assert page.locator("#architectureGroups .architecture-group").count() == 1
     page.locator("#architectureGroups .architecture-group>button").click()

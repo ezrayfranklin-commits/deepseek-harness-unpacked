@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/src/star-cta.css" />
   <link rel="stylesheet" href="/src/reference-ui.css" />
   <link rel="stylesheet" href="/src/catalog-ui.css" />
+  <link rel="stylesheet" href="/src/tool-tree.css" />
   <style>.hero{overflow:hidden}</style>
 </head>
 <body>
@@ -110,7 +111,7 @@
 
     <section id="tools" class="chapter tools">
       <div class="section-head"><div><span>04 / TOOL PIPELINE</span><h2>工具调用不是<br>直接执行</h2></div><p>权限、沙箱、超时、守卫和结果重写都作为瀑布事件插入流水线，不必侵入工具实现。</p></div>
-      <div class="catalog-block tool-system"><div class="catalog-toolbar"><div><span>MODEL-VISIBLE CATALOG</span><h3><b id="toolCount">52</b> 个工具 · 逐项来自官方生成目录</h3></div><label>筛选工具 <input id="toolSearch" type="search" placeholder="输入 bash、session、cordis…"></label></div><div class="category-tabs" id="toolCategories"></div><div class="tool-catalog-layout"><div class="tool-catalog-grid" id="toolCatalog"></div><aside class="catalog-detail" id="toolDetail"><span>SELECT A TOOL</span><h3>点击左侧工具</h3><p>这里会显示工具说明、参数、所属包和源码位置。</p></aside></div></div>
+      <div class="catalog-block tool-system"><div class="catalog-toolbar"><div><span>MODEL-VISIBLE CATALOG</span><h3><b id="toolCount">52</b> 个工具 · 按职责展开的完整工具树</h3></div><label>筛选工具 <input id="toolSearch" type="search" placeholder="输入 bash、session、cordis…"></label></div><div class="tool-tree-scroll"><div class="tool-tree" id="toolCatalog"></div></div><aside class="catalog-detail tool-tree-detail" id="toolDetail"><span>SELECT A TOOL</span><h3>点击树上的工具节点</h3><p>这里会显示工具说明、参数、所属包和源码位置。</p></aside></div>
       <div class="pipeline-heading"><span>EXECUTION PIPELINE</span><h3>每个工具都会经过这条执行流水线</h3></div><div class="pipeline">
         <button class="pipe active" data-pipe="模型产出的 tool-call 先写入会话日志，UI 此时即可渲染 pending 卡片。"><i>01</i><b>LOG CALL</b><small>tool/call</small></button>
         <button class="pipe" data-pipe="前置 waterfall 承载 hooks、权限检查与沙箱策略；监听器必须调用 next() 才会继续。"><i>02</i><b>PRE</b><small>permission · sandbox</small></button>
