@@ -42,6 +42,12 @@ with sync_playwright() as p:
         page.locator(f'#languageList [data-locale="{locale}"]').click()
         assert page.locator("html").get_attribute("lang") == locale
         assert title_text in page.locator(".hero h1").inner_text()
+        assert page.locator("#commandCatalog article").first.locator("p").inner_text() == {"en":"Record feedback for this session.","es":"Registrar comentarios sobre esta sesión.","ja":"このセッションへのフィードバックを記録します。","zh-CN":"记录这次会话的反馈。"}[locale]
+        page.locator("#toolCatalog .tool-node").first.click()
+        assert {"en":"Custom editing tool","es":"pertenece a la rama","ja":"に属し","zh-CN":"属于"}[locale] in page.locator("#toolDetail p").inner_text()
+        if locale in ("en", "es"):
+            han = page.locator("body").evaluate("""el => { const copy=el.cloneNode(true); copy.querySelector('#languageList')?.remove(); return (copy.innerText.match(/[\\u4e00-\\u9fff]/g)||[]).join('') }""")
+            assert han == "", f"Chinese text remains in {locale}: {han[:80]}"
     page.locator('[data-detail="web"]').click()
     assert page.locator("#detailTitle").inner_text() == "dsh-web-app"
     page.locator('[data-pipe]').nth(3).click()
