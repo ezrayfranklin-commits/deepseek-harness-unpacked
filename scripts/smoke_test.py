@@ -13,6 +13,12 @@ with sync_playwright() as p:
     page.goto("http://127.0.0.1:4173", wait_until="networkidle")
     assert page.title() == "DeepSeek Harness · 源码解构"
     assert page.locator("section").count() >= 8
+    assert page.locator("html").get_attribute("lang") == "zh-CN"
+    assert "发出一条消息以后" in page.locator(".hero-copy").inner_text()
+    for locale, title_text in [("en", "Source Unpacked"), ("es", "Código al descubierto"), ("ja", "ソースコード解説"), ("zh-CN", "源码解构")]:
+        page.locator("#languageSelect").select_option(locale)
+        assert page.locator("html").get_attribute("lang") == locale
+        assert title_text in page.locator(".hero h1").inner_text()
     page.locator('[data-detail="web"]').click()
     assert page.locator("#detailTitle").inner_text() == "dsh-web-app"
     page.locator('[data-pipe]').nth(3).click()

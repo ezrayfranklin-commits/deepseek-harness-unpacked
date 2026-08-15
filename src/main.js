@@ -1,47 +1,109 @@
-const details = {
-  profile: ['ROOT COMPOSITION', 'Web Profile', '按声明顺序装入组合包，再叠加 profile、home 与命令行 patch，最终生成可运行的 Cordis 插件树。', 'dsh --profile web --dump-config'],
-  base: ['FOUNDATION BUNDLE', 'dsh-base', '每个 profile 的第一层：模型适配器、工具、持久化、沙箱、审批、设置、凭据与遥测。', '@deepseek-ai/dsh-base'],
-  web: ['APPLICATION BUNDLE', 'dsh-web-app', '在基础能力之上增加 Web Server、JSON-RPC 边界、浏览器客户端与会话 UI。', '@deepseek-ai/dsh-web-app'],
-  patch: ['USER LAYER', 'cordis.patch.yml', '通过稳定 id 替换条目的完整 config，或插入新的插件条目；无需修改上游源码。', 'profile/cordis.patch.yml'],
-  overlay: ['EPHEMERAL LAYER', 'CLI Overlay', '最后应用的命令行覆盖层，适合实验、调试与临时切换 Provider。', 'dsh web --patch ./local.yml']
+const locales = {
+  'zh-CN': {
+    meta: ['DeepSeek Harness · 源码解构', 'DeepSeek Harness Web 客户端源码解析。读懂 Cordis 插件架构、Agent Loop、事件日志和 UI 渲染链路。'],
+    nav: ['架构', '循环', '客户端', '工具'], source: '源码 ↗', language: '选择语言',
+    hero: ['源码阅读笔记 / RC.5', 'DeepSeek Harness<br><em>源码解构</em>', '你在 Web 客户端发出一条消息以后，代码接下来会做什么？这份拆解从 <strong>Cordis 插件树</strong>一路读到 Agent Loop，再顺着事件日志回到你眼前的界面。', '从架构开始 <span>↓</span>', ['仓库文件', 'TS / TSX 行', 'Workspace 包', '插件化'], '向下继续读'],
+    manifesto: ['00 / 先抓住主线', '“不存在需要打补丁的特权内核。”', '我把仓库里的架构文档和关键包顺着读了一遍。Harness 最值得先看的，是它怎样把模型、工具、会话记录，连同 Agent Loop 一起装进 Cordis。你可以替换其中一块，其他部分照常工作。', [
+      ['01', '所有功能都能装卸', '插件把能力挂到共享上下文里。插件卸载以后，它注册的内容也跟着撤掉。'],
+      ['02', '会话日志留住事实', '模型看到过的内容都要写进 SessionEvent。刷新页面或回放会话时，系统能从日志重新还原。'],
+      ['03', '能力可以换实现', '文件系统、进程和子 Agent 都留出了统一接口。本地实现可以换成远程沙箱，调用方不用跟着重写。']
+    ]],
+    architecture: ['01 / 系统地图', '程序启动时<br>会拼出一棵插件树', 'Profile 里列着一组组合包。Harness 按顺序把它们装进 Cordis，然后再应用用户自己的配置。点一下节点，可以看每一层具体负责什么。'],
+    nodeSmall: ['启动时组装', '基础能力', '浏览器应用', '用户配置', '临时配置'],
+    details: {
+      profile: ['根组合', 'Web Profile', 'Harness 先按声明顺序载入组合包，再应用 profile、home 和命令行里的配置，最后得到实际运行的 Cordis 插件树。', 'dsh --profile web --dump-config'],
+      base: ['基础组合包', 'dsh-base', '每个 profile 都从这里起步。模型适配器、工具、持久化、沙箱、审批、设置、凭据和遥测都在这一层接入。', '@deepseek-ai/dsh-base'],
+      web: ['Web 组合包', 'dsh-web-app', '这一层加上 Web Server、JSON-RPC、浏览器客户端和会话界面，把基础 Agent 能力送到浏览器里。', '@deepseek-ai/dsh-web-app'],
+      patch: ['用户配置', 'cordis.patch.yml', '你可以按稳定 id 替换一项配置，也可以插入新的插件，不需要改上游代码。', 'profile/cordis.patch.yml'],
+      overlay: ['临时配置', '命令行 Overlay', '命令行里的 patch 最后生效。调试某个 Provider 或试一份新配置时，用它最省事。', 'dsh web --patch ./local.yml']
+    },
+    lifecycle: ['02 / AGENT LOOP', '一条消息<br>怎样跑完整个来回', '一个 Turn 里可以跑多个 Step。每个 Step 包含一次模型请求，以及这次请求发起的工具调用。横向滑动可以看完整顺序。', [
+      ['收到输入', 'followup()', '消息放进 Agent inbox，driver 随即醒来。'], ['记下起点', 'Turn 开始', 'Driver 取走待处理消息，并在会话日志里写下 turn/start。'], ['准备请求', '拼出上下文', '系统把提示词、工具 schema 和会话历史整理成模型请求。'], ['接收输出', '模型流式返回', '每一段 chunk 先写日志，页面随后收到更新。'], ['运行工具', '处理工具批次', '系统按执行模式安排工具，返回结果仍保持模型发起调用时的顺序。'], ['收尾', '继续或结束', '还有消息或工具欠着工作，就再跑一个 Step。全部处理完才关闭 Turn。']
+    ]],
+    client: ['03 / WEB 客户端', '页面显示的内容<br>来自会话事件', '浏览器通过连接层操作 Agent，同时监听 session/event。原始 chunk 一直保留在日志里，流式显示、刷新恢复和历史回放因此能用同一份记录。', ['Vite 应用入口、静态资源和端到端测试', 'React 渲染、连接、布局、轨迹、主题和设置', '托管前端文件，在浏览器与 Host 之间传递命令和事件', 'Agent 的即时状态走 agent/*，需要回放的内容写进 session/event'], ['用户输入', 'Agent 收件箱', '会话事件', 'React 节点']],
+    tools: ['04 / 工具执行', '模型发出调用以后<br>还要过好几道检查', '工具不会拿到参数就立刻开跑。权限、沙箱、超时和结果处理都能插进同一条流水线，工具本身不需要知道这些策略。', [
+      '模型给出的 tool-call 先写进会话日志。此时工具还没执行，页面已经可以显示等待中的卡片。',
+      '前置 waterfall 依次处理 hook、权限和沙箱。监听器调用 next()，控制权才会继续往下走。',
+      '守卫只能拒绝或放行已有决定，后面的插件没法偷偷放宽前面收紧的限制。',
+      'execute waterfall 包着真正的工具代码，超时、重试和指标记录都适合放在这里。',
+      '工具执行完以后，后置处理可以接受、拦下或改写结果，也可以补一段上下文。',
+      '最终结果写进 session/event。页面把等待中的工具卡片更新成完成状态，模型也只看到这一份结果。'
+    ], '当前步骤'],
+    atlas: ['05 / 源码地图', '第一次读源码<br>可以从这六处开始', '仓库有七千多个文件，挨个点开很快就会迷路。下面这条路线先串起浏览器、连接层、Agent Loop 和会话日志。', ['前端程序入口和整体验证。', 'React 运行层和消息节点渲染。', '管理浏览器端的连接生命周期。', '负责 Turn、Step 和工具批次。', '保存追加式事件日志，并从中生成视图。', '把 Web 客户端装进完整的运行配置。']],
+    cta: ['源码最适合边跑边读', '现在可以顺着<br>一条消息往下追了', '打开原始仓库继续读，或者在本地启动 Web 客户端，看看自己的插件树最终装成什么样。', '打开 GitHub ↗', '复制启动命令 ⧉'],
+    footer: ['DEEPSEEK HARNESS / 源码解析', '内容来自公开仓库 · 非官方解读', '回到顶部 ↑'], copied: '已复制 ✓'
+  },
+  en: {
+    meta: ['DeepSeek Harness · Source Unpacked', 'A visual source tour of the DeepSeek Harness web client, Cordis plugins, the agent loop, event log, and UI rendering path.'],
+    nav: ['Architecture', 'Loop', 'Client', 'Tools'], source: 'SOURCE ↗', language: 'Select language',
+    hero: ['SOURCE READING NOTES / RC.5', 'DeepSeek Harness<br><em>Source Unpacked</em>', 'What happens after you send a message from the web client? Follow the code from the <strong>Cordis plugin tree</strong> into the agent loop, then back through the event log to the interface on screen.', 'Start with architecture <span>↓</span>', ['Repository files', 'TS / TSX lines', 'Workspace packages', 'Plugin-based'], 'KEEP READING'],
+    manifesto: ['00 / THE MAIN IDEA', '“There is no privileged kernel to patch.”', 'The defining choice in Harness is that models, tools, session storage, and even the agent loop all live as Cordis plugins. Replace one piece and the rest of the system can keep running.', [['01','Everything can be mounted','Plugins contribute capabilities to shared context. Unmount the plugin and its registrations disappear with it.'],['02','The log keeps the facts','Anything visible to the model must enter SessionEvent. Refreshes and replays rebuild from the same record.'],['03','Implementations are swappable','Filesystems, processes, and subagents sit behind stable seams. Local providers can move to a remote sandbox without rewriting consumers.']]],
+    architecture: ['01 / SYSTEM MAP', 'Startup builds<br>a plugin tree', 'A profile lists bundles. Harness mounts them in order, then applies user configuration. Select a node to see what each layer contributes.'], nodeSmall:['assembled at startup','foundation','browser app','user config','temporary config'],
+    details:{profile:['ROOT COMPOSITION','Web Profile','Bundles load in declaration order. Profile, home, and CLI patches follow, producing the Cordis tree that actually runs.','dsh --profile web --dump-config'],base:['FOUNDATION BUNDLE','dsh-base','Every profile starts here with model adapters, tools, persistence, sandboxing, approval, settings, credentials, and telemetry.','@deepseek-ai/dsh-base'],web:['WEB BUNDLE','dsh-web-app','Adds the web server, JSON-RPC boundary, browser client, and conversation UI on top of the base agent capabilities.','@deepseek-ai/dsh-web-app'],patch:['USER CONFIG','cordis.patch.yml','Replace an item by stable id or insert a new plugin without changing upstream source.','profile/cordis.patch.yml'],overlay:['TEMPORARY CONFIG','CLI Overlay','The CLI patch applies last, making it useful for experiments and temporary provider changes.','dsh web --patch ./local.yml']},
+    lifecycle:['02 / AGENT LOOP','How one message<br>makes the round trip','A Turn can contain several Steps. Each Step is one model request plus the tool calls it creates. Scroll sideways to follow the sequence.',[['INPUT','followup()','The message enters the Agent inbox and wakes the driver.'],['PERSIST','Open the Turn','The driver claims pending input and records turn/start.'],['ASSEMBLE','Build context','Prompt sections, tool schemas, and session history become the model request.'],['STREAM','Model output','Each chunk enters the log before the interface renders it.'],['EXECUTE','Tool batch','Calls run by execution mode while results retain model order.'],['SETTLE','Continue or stop','Pending work starts another Step. Otherwise the Turn closes.']]],
+    client:['03 / WEB CLIENT','The interface renders<br>session events','The browser drives the Agent through the connection layer and listens to session/event. Stored chunks give streaming, reload recovery, and replay a shared source of truth.',['Vite entry point, static assets, and end-to-end tests','React rendering, connection, layout, trajectory, theme, and settings','Serves the frontend and carries commands and events across the host boundary','Live Agent state uses agent/* while replayable facts use session/event'],['USER INTENT','AGENT INBOX','SESSION EVENTS','REACT NODES']],
+    tools:['04 / TOOL EXECUTION','A tool call passes<br>through several checks','Tools do not run the moment arguments arrive. Permissions, sandboxing, timeouts, and result processing all join the same pipeline without coupling policy to tool code.',['The model tool-call enters the session log first, so the UI can render a pending card before execution.','The pre-execute waterfall handles hooks, permission, and sandbox policy. Control continues only through next().','Monotonic guards may deny or abstain. A later plugin cannot loosen an earlier restriction.','The execute waterfall wraps the tool body, which is where timeout, retry, and metrics belong.','Post-processing can accept, block, replace, or attach context to a result.','The final result enters session/event. The UI completes its card and the model sees this single outcome.'],'SELECTED STAGE'],
+    atlas:['05 / REPOSITORY ATLAS','Six places to start<br>reading the source','More than seven thousand files make random browsing expensive. This route connects the browser, connection layer, agent loop, and event log first.',['Frontend entry point and integration checks.','React runtime and conversation-node rendering.','Browser connection lifecycle.','Turns, Steps, and tool batches.','Append-only event log and derived views.','Composes the web client into a runnable profile.']],
+    cta:['READ THE SOURCE WHILE IT RUNS','Now you can follow<br>a message through the code','Continue in the original repository, or run the web client locally and inspect the plugin tree assembled on your machine.','Open GitHub ↗','Copy launch command ⧉'], footer:['DEEPSEEK HARNESS / SOURCE ANALYSIS','Based on the public repository · Unofficial guide','BACK TO TOP ↑'], copied:'Copied ✓'
+  },
+  es: {
+    meta:['DeepSeek Harness · Código al descubierto','Un recorrido visual por el cliente web de DeepSeek Harness, los plugins de Cordis, el bucle del agente, el registro de eventos y la interfaz.'],nav:['Arquitectura','Bucle','Cliente','Herramientas'],source:'CÓDIGO ↗',language:'Elegir idioma',
+    hero:['NOTAS DE CÓDIGO / RC.5','DeepSeek Harness<br><em>Código al descubierto</em>','¿Qué ocurre después de enviar un mensaje desde el cliente web? Seguimos el código desde el <strong>árbol de plugins de Cordis</strong> hasta el bucle del agente, y volvemos a la interfaz a través del registro de eventos.','Empezar por la arquitectura <span>↓</span>',['Archivos','Líneas TS / TSX','Paquetes Workspace','Basado en plugins'],'SEGUIR LEYENDO'],
+    manifesto:['00 / LA IDEA CENTRAL','“No existe un núcleo privilegiado que haya que parchear.”','Harness coloca los modelos, las herramientas, el registro de sesión e incluso el bucle del agente dentro de plugins de Cordis. Se puede sustituir una pieza sin rehacer el resto del sistema.',[['01','Todo se puede montar','Los plugins aportan capacidades al contexto compartido. Al desmontarlos, también desaparecen sus registros.'],['02','El registro conserva los hechos','Todo lo que ve el modelo entra en SessionEvent. La recarga y la reproducción parten del mismo registro.'],['03','Las implementaciones se cambian','Los archivos, procesos y subagentes usan interfaces estables. Un proveedor local puede pasar a un sandbox remoto sin cambiar sus consumidores.']]],
+    architecture:['01 / MAPA DEL SISTEMA','El arranque construye<br>un árbol de plugins','Un perfil enumera varios paquetes. Harness los monta en orden y después aplica la configuración del usuario. Selecciona un nodo para ver qué añade cada capa.'],nodeSmall:['montaje inicial','base','aplicación web','configuración','configuración temporal'],
+    details:{profile:['COMPOSICIÓN RAÍZ','Perfil Web','Los paquetes se cargan en orden. Después se aplican los parches del perfil, del directorio home y de la línea de comandos.','dsh --profile web --dump-config'],base:['PAQUETE BASE','dsh-base','Todos los perfiles empiezan aquí con modelos, herramientas, persistencia, sandbox, permisos, ajustes, credenciales y telemetría.','@deepseek-ai/dsh-base'],web:['PAQUETE WEB','dsh-web-app','Añade el servidor web, JSON-RPC, el cliente del navegador y la interfaz de conversación.','@deepseek-ai/dsh-web-app'],patch:['CONFIGURACIÓN DEL USUARIO','cordis.patch.yml','Permite sustituir una entrada por su id estable o insertar un plugin sin cambiar el código original.','profile/cordis.patch.yml'],overlay:['CONFIGURACIÓN TEMPORAL','Overlay de CLI','El parche de la CLI se aplica al final y resulta útil para pruebas o cambios temporales de proveedor.','dsh web --patch ./local.yml']},
+    lifecycle:['02 / BUCLE DEL AGENTE','El recorrido completo<br>de un mensaje','Un Turn puede contener varios Steps. Cada Step incluye una petición al modelo y las llamadas a herramientas que esta genera.',[['ENTRADA','followup()','El mensaje entra en el inbox del Agent y despierta al driver.'],['REGISTRO','Abrir el Turn','El driver toma la entrada pendiente y registra turn/start.'],['PREPARACIÓN','Crear el contexto','El prompt, los esquemas de herramientas y el historial forman la petición.'],['STREAM','Salida del modelo','Cada chunk entra en el registro antes de mostrarse en la interfaz.'],['EJECUCIÓN','Lote de herramientas','Las llamadas se ordenan por modo de ejecución y los resultados conservan el orden del modelo.'],['CIERRE','Seguir o terminar','Si queda trabajo empieza otro Step. En caso contrario se cierra el Turn.']]],
+    client:['03 / CLIENTE WEB','La interfaz representa<br>eventos de sesión','El navegador controla el Agent mediante la capa de conexión y escucha session/event. Los chunks guardados permiten compartir el mismo origen entre streaming, recarga y reproducción.',['Entrada Vite, recursos estáticos y pruebas integrales','Renderizado React, conexión, diseño, trayectoria, tema y ajustes','Sirve el frontend y transporta comandos y eventos a través del Host','El estado activo usa agent/* y los hechos reproducibles usan session/event'],['INTENCIÓN','INBOX DEL AGENT','EVENTOS DE SESIÓN','NODOS REACT']],
+    tools:['04 / EJECUCIÓN DE HERRAMIENTAS','Cada llamada pasa<br>por varias comprobaciones','Una herramienta no se ejecuta al recibir los argumentos. Permisos, sandbox, tiempos límite y tratamiento del resultado entran en la misma canalización.',['El tool-call se registra primero. La interfaz ya puede mostrar una tarjeta pendiente antes de ejecutarlo.','El waterfall previo gestiona hooks, permisos y sandbox. Solo continúa cuando el listener llama a next().','Los guards pueden denegar o abstenerse. Un plugin posterior no puede relajar una restricción anterior.','El waterfall de ejecución envuelve el código de la herramienta y permite añadir timeout, reintentos y métricas.','El postprocesado puede aceptar, bloquear, sustituir o añadir contexto al resultado.','El resultado final entra en session/event. La interfaz completa la tarjeta y el modelo recibe una única respuesta.'],'ETAPA SELECCIONADA'],
+    atlas:['05 / MAPA DEL REPOSITORIO','Seis lugares para<br>empezar a leer','Navegar al azar entre más de siete mil archivos cuesta tiempo. Esta ruta conecta primero el navegador, la conexión, el bucle y el registro.',['Entrada del frontend y pruebas de integración.','Runtime React y renderizado de la conversación.','Ciclo de vida de la conexión.','Turns, Steps y lotes de herramientas.','Registro de eventos y vistas derivadas.','Integra el cliente web en un perfil ejecutable.']],
+    cta:['LEE EL CÓDIGO MIENTRAS FUNCIONA','Ya puedes seguir<br>un mensaje por el código','Continúa en el repositorio original o ejecuta el cliente web y revisa el árbol de plugins de tu equipo.','Abrir GitHub ↗','Copiar comando ⧉'],footer:['DEEPSEEK HARNESS / ANÁLISIS DEL CÓDIGO','Basado en el repositorio público · Guía no oficial','VOLVER ARRIBA ↑'],copied:'Copiado ✓'
+  },
+  ja: {
+    meta:['DeepSeek Harness · ソースコード解説','DeepSeek Harness の Web クライアント、Cordis プラグイン、Agent Loop、イベントログ、UI 描画をたどるビジュアルガイド。'],nav:['構成','ループ','クライアント','ツール'],source:'SOURCE ↗',language:'言語を選択',
+    hero:['ソース読解ノート / RC.5','DeepSeek Harness<br><em>ソースコード解説</em>','Web クライアントからメッセージを送ったあと、コードは何をするのでしょうか。<strong>Cordis のプラグインツリー</strong>から Agent Loop へ進み、イベントログを通って画面に戻るまでを追います。','構成から読む <span>↓</span>',['リポジトリ内のファイル','TS / TSX 行','Workspace パッケージ','プラグイン化'],'続きを読む'],
+    manifesto:['00 / まず押さえること','「パッチを当てる特権的なカーネルは存在しない」','Harness はモデル、ツール、セッションログ、Agent Loop まで Cordis プラグインとして組み立てます。一つの実装を差し替えても、ほかの部分はそのまま動かせます。',[['01','すべて着脱できる','プラグインは共有コンテキストに機能を登録します。プラグインを外すと、その登録も一緒に消えます。'],['02','ログが事実を残す','モデルが見た内容は SessionEvent に記録されます。再読み込みとリプレイは同じ記録から復元します。'],['03','実装を交換できる','ファイルシステム、プロセス、サブ Agent は共通インターフェースの後ろにあります。呼び出し側を変えずにリモート環境へ移せます。']]],
+    architecture:['01 / システムマップ','起動時に<br>プラグインツリーを組み立てる','Profile には複数の bundle が並びます。Harness は順番に読み込み、最後にユーザー設定を適用します。ノードを選ぶと各層の役割を確認できます。'],nodeSmall:['起動時に構成','基礎機能','ブラウザアプリ','ユーザー設定','一時設定'],
+    details:{profile:['ルート構成','Web Profile','bundle を宣言順に読み込み、profile、home、CLI の patch を適用して、実際に動く Cordis ツリーを作ります。','dsh --profile web --dump-config'],base:['基礎 BUNDLE','dsh-base','モデル、ツール、永続化、sandbox、承認、設定、認証情報、telemetry を提供します。','@deepseek-ai/dsh-base'],web:['WEB BUNDLE','dsh-web-app','Web Server、JSON-RPC、ブラウザクライアント、会話 UI を基礎機能の上に追加します。','@deepseek-ai/dsh-web-app'],patch:['ユーザー設定','cordis.patch.yml','安定した id で設定を置き換えたり、上流コードを変更せずにプラグインを追加したりできます。','profile/cordis.patch.yml'],overlay:['一時設定','CLI Overlay','CLI の patch は最後に適用されます。実験や Provider の一時的な切り替えに向いています。','dsh web --patch ./local.yml']},
+    lifecycle:['02 / AGENT LOOP','一つのメッセージが<br>往復するまで','一つの Turn には複数の Step が入ります。各 Step は一回のモデルリクエストと、そこから生まれたツール呼び出しで構成されます。',[['入力','followup()','メッセージが Agent inbox に入り、driver が起動します。'],['記録','Turn を開く','driver が入力を取得し、turn/start を記録します。'],['準備','コンテキストを作る','プロンプト、ツール schema、履歴をモデルリクエストにまとめます。'],['ストリーム','モデル出力','各 chunk は画面に出る前にログへ記録されます。'],['実行','ツールのバッチ','実行モードに沿ってツールを動かし、結果はモデルの呼び出し順を保ちます。'],['完了','継続または終了','作業が残れば次の Step へ進み、なければ Turn を閉じます。']]],
+    client:['03 / WEB クライアント','画面はセッションイベントを<br>描画している','ブラウザは接続層から Agent を操作し、session/event を購読します。保存された chunk があるため、ストリーミング、再読み込み、リプレイで同じ記録を使えます。',['Vite の入口、静的アセット、E2E テスト','React 描画、接続、レイアウト、軌跡、テーマ、設定','フロントエンドを配信し、Host との間でコマンドとイベントを運ぶ','現在の状態は agent/*、リプレイする事実は session/event に置く'],['ユーザー入力','AGENT INBOX','セッションイベント','REACT ノード']],
+    tools:['04 / ツール実行','ツールは実行前後に<br>複数の検査を通る','引数を受け取ってすぐにツールが動くわけではありません。権限、sandbox、timeout、結果処理を同じパイプラインへ追加できます。',['tool-call を最初にログへ書きます。実行前でも UI は待機中のカードを表示できます。','事前 waterfall が hook、権限、sandbox を処理します。listener が next() を呼ぶと次へ進みます。','guard は拒否または保留だけを行い、後続プラグインは先に決まった制限を緩められません。','execute waterfall がツール本体を包み、timeout、retry、metrics を追加します。','事後処理は結果の承認、拒否、置換、コンテキスト追加を行えます。','最終結果を session/event に書き、UI はカードを完了状態へ更新します。モデルもこの結果だけを受け取ります。'],'選択中のステージ'],
+    atlas:['05 / リポジトリマップ','最初に読むなら<br>この六か所','七千を超えるファイルを順不同で読むと迷います。まずブラウザ、接続層、Agent Loop、セッションログを一本につなげます。',['フロントエンドの入口と統合テスト。','React ランタイムと会話ノードの描画。','ブラウザ接続のライフサイクル。','Turn、Step、ツールバッチ。','追記型イベントログと派生ビュー。','Web クライアントを実行可能な Profile に組み込む。']],
+    cta:['動かしながらソースを読む','メッセージの行き先を<br>コードで追えるようになりました','元のリポジトリを開いて続きを読むか、ローカルで Web クライアントを起動してプラグインツリーを確認してください。','GitHub を開く ↗','起動コマンドをコピー ⧉'],footer:['DEEPSEEK HARNESS / ソース解析','公開リポジトリに基づく非公式ガイド','トップへ戻る ↑'],copied:'コピーしました ✓'
+  }
 };
 
-document.querySelectorAll('.node').forEach(node => node.addEventListener('click', () => {
-  document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
-  node.classList.add('active');
-  const [tag, title, body, code] = details[node.dataset.detail];
-  document.querySelector('#detailTag').textContent = tag;
-  document.querySelector('#detailTitle').textContent = title;
-  document.querySelector('#detailText').textContent = body;
-  document.querySelector('#detailCode').textContent = code;
-}));
+let currentLocale = 'zh-CN';
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+const setText = (selector, value, html = false) => { const el = $(selector); if (el) el[html ? 'innerHTML' : 'textContent'] = value; };
+const setList = (selector, values, html = false) => $$(selector).forEach((el, i) => { if (values[i] !== undefined) el[html ? 'innerHTML' : 'textContent'] = values[i]; });
 
-document.querySelectorAll('.pipe').forEach(pipe => pipe.addEventListener('click', () => {
-  document.querySelectorAll('.pipe').forEach(p => p.classList.remove('active'));
-  pipe.classList.add('active');
-  document.querySelector('#pipeText').textContent = pipe.dataset.pipe;
-}));
+function applyLocale(locale) {
+  const t = locales[locale]; currentLocale = locale;
+  document.documentElement.lang = locale;
+  document.title = t.meta[0]; $('meta[name="description"]').content = t.meta[1];
+  setList('#nav a', t.nav); setText('.repo-link', t.source); $('#languageSelect').setAttribute('aria-label', t.language); $('.language-picker .sr-only').textContent = t.language;
+  setText('.eyebrow', t.hero[0]); $('.eyebrow').insertAdjacentHTML('afterbegin', '<span class="pulse"></span>'); setText('.hero h1', t.hero[1], true); setText('.hero-copy', t.hero[2], true); setText('#hero .primary', t.hero[3], true); setList('.metrics div>span', t.hero[4]); setText('.scroll', `<span></span>${t.hero[5]}`, true);
+  setText('.chapter-no', t.manifesto[0]); setText('.manifesto blockquote', t.manifesto[1]); setText('.manifesto>p', t.manifesto[2]); $$('.thesis-grid article').forEach((a,i)=>{a.querySelector('span').textContent=t.manifesto[3][i][0];a.querySelector('h3').textContent=t.manifesto[3][i][1];a.querySelector('p').textContent=t.manifesto[3][i][2]});
+  const heads = $$('.section-head'); [[t.architecture],[t.lifecycle],[t.client],[t.tools],[t.atlas]].forEach((group,i)=>{const h=heads[i],d=group[0];h.querySelector('span').textContent=d[0];h.querySelector('h2').innerHTML=d[1];h.querySelector(':scope>p').textContent=d[2]});
+  setList('.node small', t.nodeSmall); const activeDetail=$('.node.active')?.dataset.detail||'profile'; renderDetail(activeDetail,t);
+  $$('.flow-track article').forEach((a,i)=>{a.querySelector('span').textContent=t.lifecycle[3][i][0];a.querySelector('h3').textContent=t.lifecycle[3][i][1];a.querySelector('p').textContent=t.lifecycle[3][i][2]});
+  setList('.stack-rows article p',t.client[3]); setList('.projection span',t.client[4]);
+  $$('.pipe').forEach((p,i)=>p.dataset.pipe=t.tools[3][i]); setText('.pipe-readout span',t.tools[4]); setText('#pipeText',$('.pipe.active').dataset.pipe);
+  setList('.file-grid a p',t.atlas[3]); setText('.cta>div>span',t.cta[0]);setText('.cta h2',t.cta[1],true);setText('.cta p',t.cta[2]);setText('.cta .primary',t.cta[3]);setText('#copyCmd2',t.cta[4]);setList('footer>*',t.footer);
+  document.body.classList.remove('language-flash'); requestAnimationFrame(()=>document.body.classList.add('language-flash'));
+}
 
-const copy = async (button) => {
-  await navigator.clipboard.writeText('npx @deepseek-ai/dsh web');
-  const old = button.innerHTML; button.textContent = '已复制 ✓';
-  setTimeout(() => button.innerHTML = old, 1600);
-};
-['copyCmd', 'copyCmd2'].forEach(id => document.querySelector(`#${id}`).addEventListener('click', e => copy(e.currentTarget)));
+function renderDetail(key, t = locales[currentLocale]) { const [tag,title,body,code]=t.details[key]; setText('#detailTag',tag);setText('#detailTitle',title);setText('#detailText',body);setText('#detailCode',code); }
+document.querySelectorAll('.node').forEach(node => node.addEventListener('click',()=>{ $$('.node').forEach(n=>n.classList.remove('active'));node.classList.add('active');renderDetail(node.dataset.detail); }));
+document.querySelectorAll('.pipe').forEach(pipe => pipe.addEventListener('click',()=>{ $$('.pipe').forEach(p=>p.classList.remove('active'));pipe.classList.add('active');setText('#pipeText',pipe.dataset.pipe); }));
+$('#languageSelect').addEventListener('change', e => applyLocale(e.target.value));
 
-const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-  if (!entry.isIntersecting) return;
-  entry.target.classList.add('visible');
-  if (entry.target.classList.contains('metrics')) entry.target.querySelectorAll('[data-count]').forEach(el => {
-    const end = +el.dataset.count, start = performance.now(), duration = 1300;
-    const tick = now => { const p = Math.min((now - start) / duration, 1); el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))).toLocaleString(); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
-  });
-  observer.unobserve(entry.target);
-}), { threshold: .15 });
-document.querySelectorAll('.chapter, .reveal, .metrics').forEach(el => observer.observe(el));
+const copy = async button => { await navigator.clipboard.writeText('npx @deepseek-ai/dsh web'); const old=button.innerHTML;button.textContent=locales[currentLocale].copied;setTimeout(()=>button.innerHTML=old,1600); };
+['copyCmd','copyCmd2'].forEach(id=>$(`#${id}`).addEventListener('click',e=>copy(e.currentTarget)));
 
-const sections = [...document.querySelectorAll('main section[id]')];
-window.addEventListener('scroll', () => {
-  const current = sections.filter(s => s.offsetTop < scrollY + innerHeight * .45).pop();
-  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', current && a.hash === `#${current.id}`));
-}, { passive: true });
+const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.classList.add('visible');if(entry.target.classList.contains('metrics'))entry.target.querySelectorAll('[data-count]').forEach(el=>{const end=+el.dataset.count,start=performance.now(),duration=1300;const tick=now=>{const p=Math.min((now-start)/duration,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)});observer.unobserve(entry.target)}),{threshold:.15});
+document.querySelectorAll('.chapter,.reveal,.metrics').forEach(el=>observer.observe(el));
+const sections=[...document.querySelectorAll('main section[id]')];window.addEventListener('scroll',()=>{const current=sections.filter(s=>s.offsetTop<scrollY+innerHeight*.45).pop();$$('#nav a').forEach(a=>a.classList.toggle('active',current&&a.hash===`#${current.id}`))},{passive:true});
+
+applyLocale('zh-CN');
