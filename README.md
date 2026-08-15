@@ -1,10 +1,20 @@
 # DeepSeek Harness Unpacked
 
-一个面向中文开发者的 DeepSeek Harness Web 客户端交互式源码解析站。
+[简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [日本語](README.ja.md)
+
+一个支持简体中文、英文、西班牙语和日语的 DeepSeek Harness Web 客户端交互式源码解析站。
 
 ## 在线阅读
 
 **[打开 DeepSeek Harness Unpacked →](https://ezrayfranklin-commits.github.io/deepseek-harness-unpacked/)**
+
+## 网站内容
+
+- 沿着真实源码拆解 Cordis 插件树和 Web Profile
+- 用动画还原一条消息经过 Agent Loop 的完整过程
+- 按职责浏览 52 个工具及其参数、插件包和源码位置
+- 查看 Web 客户端注册的命令和推荐的源码阅读路线
+- 在页面顶部随时切换简体中文、English、Español 和日本語
 
 ## 本地运行
 
