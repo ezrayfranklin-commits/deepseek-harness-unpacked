@@ -17,8 +17,14 @@ with sync_playwright() as p:
     assert "发出一条消息以后" in page.locator(".hero-copy").inner_text()
     assert page.locator(".star-cta").get_attribute("href") == "https://github.com/ezrayfranklin-commits/deepseek-harness-unpacked"
     assert "Star" in page.locator(".star-cta").inner_text()
+    assert page.locator("#languageList button:visible").count() == 4
+    line = page.locator(".assembly-lines .p1")
+    first_offset = line.evaluate("el => getComputedStyle(el).strokeDashoffset")
+    page.wait_for_timeout(700)
+    second_offset = line.evaluate("el => getComputedStyle(el).strokeDashoffset")
+    assert first_offset != second_offset
     for locale, title_text in [("en", "Source Unpacked"), ("es", "Código al descubierto"), ("ja", "ソースコード解説"), ("zh-CN", "源码解构")]:
-        page.locator("#languageSelect").select_option(locale)
+        page.locator(f'#languageList [data-locale="{locale}"]').click()
         assert page.locator("html").get_attribute("lang") == locale
         assert title_text in page.locator(".hero h1").inner_text()
     page.locator('[data-detail="web"]').click()
@@ -32,6 +38,11 @@ with sync_playwright() as p:
     print(overflow)
     assert overflow["width"] <= overflow["viewport"]
     mobile.screenshot(path=str(shots / "mobile.png"), full_page=True)
+    comment_view = browser.new_page(viewport={"width": 571, "height": 660}, device_scale_factor=1)
+    comment_view.goto("http://127.0.0.1:4173/#architecture", wait_until="networkidle")
+    assert comment_view.locator("#languageList button:visible").count() == 4
+    assert comment_view.locator(".map-stage .node:visible").count() == 5
+    comment_view.screenshot(path=str(shots / "comment-571.png"), full_page=False)
     assert not errors, errors
     print("PASS desktop+mobile, interactions, console")
     browser.close()

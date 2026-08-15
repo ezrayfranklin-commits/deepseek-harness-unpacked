@@ -8,10 +8,11 @@
   <title>DeepSeek Harness · 源码解构</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css" />
   <link rel="stylesheet" href="/src/i18n.css" />
   <link rel="stylesheet" href="/src/star-cta.css" />
+  <link rel="stylesheet" href="/src/reference-ui.css" />
   <style>.hero{overflow:hidden}</style>
 </head>
 <body>
@@ -22,7 +23,7 @@
       <a href="#architecture">架构</a><a href="#lifecycle">循环</a><a href="#client">客户端</a><a href="#tools">工具</a>
     </nav>
     <div class="header-actions">
-      <label class="language-picker"><span class="sr-only">选择语言</span><select id="languageSelect" aria-label="选择语言"><option value="zh-CN">简体中文</option><option value="en">English</option><option value="es">Español</option><option value="ja">日本語</option></select></label>
+      <div class="language-list" id="languageList" aria-label="选择语言" role="group"><button type="button" data-locale="zh-CN" class="active" aria-pressed="true">简体中文</button><button type="button" data-locale="en" aria-pressed="false">English</button><button type="button" data-locale="es" aria-pressed="false">Español</button><button type="button" data-locale="ja" aria-pressed="false">日本語</button></div>
       <a class="repo-link" href="https://github.com/ezrayfranklin-commits/deepseek-harness-unpacked" target="_blank" rel="noreferrer">STAR ON GITHUB ★</a>
     </div>
   </header>
@@ -58,8 +59,16 @@
       <div class="section-head"><div><span>01 / SYSTEM MAP</span><h2>运行时是一棵<br>插件树</h2></div><p>Profile 不是固定应用，而是一组按顺序叠加的组合包。点击节点查看它向运行时贡献了什么。</p></div>
       <div class="system-map">
         <div class="map-stage" id="mapStage">
-          <svg viewBox="0 0 900 420" aria-hidden="true">
-            <path d="M450 62V112M450 112H150V167M450 112H350V167M450 112H550V167M450 112H750V167M150 225V278M350 225V278M550 225V278M750 225V278" />
+          <svg class="assembly-lines" viewBox="0 0 900 420" aria-hidden="true">
+            <path class="guide" d="M150 140C180 140 120 280 150 280M300 280C330 280 345 140 375 140M525 140C555 140 570 280 600 280M750 280C780 280 720 140 750 140" />
+            <path class="live p1" pathLength="1" d="M150 140C180 140 120 280 150 280" />
+            <path class="live p2" pathLength="1" d="M300 280C330 280 345 140 375 140" />
+            <path class="live p3" pathLength="1" d="M525 140C555 140 570 280 600 280" />
+            <path class="live p4" pathLength="1" d="M750 280C780 280 720 140 750 140" />
+            <circle class="signal s1" r="4"><animateMotion dur="1s" begin=".35s" fill="freeze" path="M150 140C180 140 120 280 150 280" /></circle>
+            <circle class="signal s2" r="4"><animateMotion dur="1s" begin="1.35s" fill="freeze" path="M300 280C330 280 345 140 375 140" /></circle>
+            <circle class="signal s3" r="4"><animateMotion dur="1s" begin="2.35s" fill="freeze" path="M525 140C555 140 570 280 600 280" /></circle>
+            <circle class="signal s4" r="4"><animateMotion dur="1s" begin="3.35s" fill="freeze" path="M750 280C780 280 720 140 750 140" /></circle>
           </svg>
           <button class="node root active" data-detail="profile"><b>PROFILE / WEB</b><small>启动时组装</small></button>
           <button class="node n1" data-detail="base"><b>dsh-base</b><small>基础能力</small></button>
