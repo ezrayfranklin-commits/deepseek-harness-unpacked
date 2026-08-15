@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/src/i18n.css" />
   <link rel="stylesheet" href="/src/star-cta.css" />
   <link rel="stylesheet" href="/src/reference-ui.css" />
+  <link rel="stylesheet" href="/src/catalog-ui.css" />
   <style>.hero{overflow:hidden}</style>
 </head>
 <body>
@@ -76,6 +77,7 @@
         </div>
         <aside class="map-detail"><span id="detailTag">ROOT COMPOSITION</span><h3 id="detailTitle">Web Profile</h3><p id="detailText">按声明顺序装入组合包，再叠加 profile、home 与命令行 patch，最终生成可运行的 Cordis 插件树。</p><code id="detailCode">dsh --profile web --dump-config</code></aside>
       </div>
+      <div class="catalog-block architecture-catalog"><div class="catalog-toolbar"><div><span>PACKAGE DIRECTORY</span><h3><b id="architectureGroupCount">49</b> 个领域 · <b id="architecturePackageCount">0</b> 个包</h3></div><label>筛选包 <input id="architectureSearch" type="search" placeholder="输入 client、tool、session…"></label></div><div class="architecture-groups" id="architectureGroups"></div></div>
     </section>
 
     <section id="lifecycle" class="chapter lifecycle">
@@ -89,6 +91,7 @@
         <article><i>05</i><span>EXECUTE</span><h3>工具批次</h3><p>按屏障与滚动池调度，结果保持模型顺序。</p><code>tool/call → result</code></article>
         <article><i>06</i><span>SETTLE</span><h3>继续或结束</h3><p>仍欠工作则下一 Step，否则关闭 Turn。</p><code>turn/end</code></article>
       </div>
+      <div class="loop-console" id="loopConsole"><div class="loop-console-head"><span>LIVE EVENT TRACE</span><button id="loopPlay" type="button">暂停动画</button></div><div class="loop-console-body"><aside id="loopSteps"></aside><article><span id="loopPhase">01 / INPUT</span><h3 id="loopTitle">消息进入 Inbox</h3><p id="loopDescription"></p><code id="loopSource"></code><div class="event-log" id="eventLog"></div></article></div></div>
     </section>
 
     <section id="client" class="chapter client">
@@ -107,7 +110,8 @@
 
     <section id="tools" class="chapter tools">
       <div class="section-head"><div><span>04 / TOOL PIPELINE</span><h2>工具调用不是<br>直接执行</h2></div><p>权限、沙箱、超时、守卫和结果重写都作为瀑布事件插入流水线，不必侵入工具实现。</p></div>
-      <div class="pipeline">
+      <div class="catalog-block tool-system"><div class="catalog-toolbar"><div><span>MODEL-VISIBLE CATALOG</span><h3><b id="toolCount">52</b> 个工具 · 逐项来自官方生成目录</h3></div><label>筛选工具 <input id="toolSearch" type="search" placeholder="输入 bash、session、cordis…"></label></div><div class="category-tabs" id="toolCategories"></div><div class="tool-catalog-layout"><div class="tool-catalog-grid" id="toolCatalog"></div><aside class="catalog-detail" id="toolDetail"><span>SELECT A TOOL</span><h3>点击左侧工具</h3><p>这里会显示工具说明、参数、所属包和源码位置。</p></aside></div></div>
+      <div class="pipeline-heading"><span>EXECUTION PIPELINE</span><h3>每个工具都会经过这条执行流水线</h3></div><div class="pipeline">
         <button class="pipe active" data-pipe="模型产出的 tool-call 先写入会话日志，UI 此时即可渲染 pending 卡片。"><i>01</i><b>LOG CALL</b><small>tool/call</small></button>
         <button class="pipe" data-pipe="前置 waterfall 承载 hooks、权限检查与沙箱策略；监听器必须调用 next() 才会继续。"><i>02</i><b>PRE</b><small>permission · sandbox</small></button>
         <button class="pipe" data-pipe="单调守卫只能拒绝或弃权，避免下游策略重新放宽已经收紧的边界。"><i>03</i><b>GUARDS</b><small>deny · abstain</small></button>
@@ -118,8 +122,13 @@
       <div class="pipe-readout"><span>SELECTED STAGE</span><p id="pipeText">模型产出的 tool-call 先写入会话日志，UI 此时即可渲染 pending 卡片。</p></div>
     </section>
 
+    <section id="commands" class="chapter commands-section">
+      <div class="section-head"><div><span>05 / COMMAND CATALOG</span><h2>Web 客户端里<br>真正注册的命令</h2></div><p>这些命令直接由人触发，不需要先走一轮模型。列表来自 Web 组合包及其 Host、Client 插件。</p></div>
+      <div class="command-catalog" id="commandCatalog"></div>
+    </section>
+
     <section class="chapter source-map">
-      <div class="section-head"><div><span>05 / REPOSITORY ATLAS</span><h2>从哪里开始读</h2></div><p>不要从 7,000 多个文件里随机漫游。这条路线覆盖 Web 客户端最重要的边界。</p></div>
+      <div class="section-head"><div><span>06 / REPOSITORY ATLAS</span><h2>从哪里开始读</h2></div><p>不要从 7,000 多个文件里随机漫游。这条路线覆盖 Web 客户端最重要的边界。</p></div>
       <div class="file-grid">
         <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/apps/web" target="_blank"><span>ENTRY</span><h3>apps/web</h3><p>前端程序入口与整体验证。</p><b>01 ↗</b></a>
         <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/client/web-react" target="_blank"><span>RENDER</span><h3>client/web-react</h3><p>React 运行面与节点渲染。</p><b>02 ↗</b></a>

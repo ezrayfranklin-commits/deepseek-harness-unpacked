@@ -1,3 +1,5 @@
+import { architectureCatalog, commandCatalog, toolCatalog } from './generated-catalog.js';
+
 const locales = {
   'zh-CN': {
     meta: ['DeepSeek Harness · 源码解构', 'DeepSeek Harness Web 客户端源码解析。读懂 Cordis 插件架构、Agent Loop、事件日志和 UI 渲染链路。'],
@@ -21,7 +23,7 @@ const locales = {
       ['收到输入', 'followup()', '消息放进 Agent inbox，driver 随即醒来。'], ['记下起点', 'Turn 开始', 'Driver 取走待处理消息，并在会话日志里写下 turn/start。'], ['准备请求', '拼出上下文', '系统把提示词、工具 schema 和会话历史整理成模型请求。'], ['接收输出', '模型流式返回', '每一段 chunk 先写日志，页面随后收到更新。'], ['运行工具', '处理工具批次', '系统按执行模式安排工具，返回结果仍保持模型发起调用时的顺序。'], ['收尾', '继续或结束', '还有消息或工具欠着工作，就再跑一个 Step。全部处理完才关闭 Turn。']
     ]],
     client: ['03 / WEB 客户端', '页面显示的内容<br>来自会话事件', '浏览器通过连接层操作 Agent，同时监听 session/event。原始 chunk 一直保留在日志里，流式显示、刷新恢复和历史回放因此能用同一份记录。', ['Vite 应用入口、静态资源和端到端测试', 'React 渲染、连接、布局、轨迹、主题和设置', '托管前端文件，在浏览器与 Host 之间传递命令和事件', 'Agent 的即时状态走 agent/*，需要回放的内容写进 session/event'], ['用户输入', 'Agent 收件箱', '会话事件', 'React 节点']],
-    tools: ['04 / 工具执行', '模型发出调用以后<br>还要过好几道检查', '工具不会拿到参数就立刻开跑。权限、沙箱、超时和结果处理都能插进同一条流水线，工具本身不需要知道这些策略。', [
+    tools: ['04 / TOOL SYSTEM', '52 个工具<br>一个都不少', '这份清单直接读取仓库生成的 Tool Schema Catalog。每个工具都可以展开查看参数、所属插件包和源码文件。', [
       '模型给出的 tool-call 先写进会话日志。此时工具还没执行，页面已经可以显示等待中的卡片。',
       '前置 waterfall 依次处理 hook、权限和沙箱。监听器调用 next()，控制权才会继续往下走。',
       '守卫只能拒绝或放行已有决定，后面的插件没法偷偷放宽前面收紧的限制。',
@@ -29,7 +31,7 @@ const locales = {
       '工具执行完以后，后置处理可以接受、拦下或改写结果，也可以补一段上下文。',
       '最终结果写进 session/event。页面把等待中的工具卡片更新成完成状态，模型也只看到这一份结果。'
     ], '当前步骤'],
-    atlas: ['05 / 源码地图', '第一次读源码<br>可以从这六处开始', '仓库有七千多个文件，挨个点开很快就会迷路。下面这条路线先串起浏览器、连接层、Agent Loop 和会话日志。', ['前端程序入口和整体验证。', 'React 运行层和消息节点渲染。', '管理浏览器端的连接生命周期。', '负责 Turn、Step 和工具批次。', '保存追加式事件日志，并从中生成视图。', '把 Web 客户端装进完整的运行配置。']],
+    atlas: ['06 / 源码地图', '第一次读源码<br>可以从这六处开始', '仓库有七千多个文件，挨个点开很快就会迷路。下面这条路线先串起浏览器、连接层、Agent Loop 和会话日志。', ['前端程序入口和整体验证。', 'React 运行层和消息节点渲染。', '管理浏览器端的连接生命周期。', '负责 Turn、Step 和工具批次。', '保存追加式事件日志，并从中生成视图。', '把 Web 客户端装进完整的运行配置。']],
     cta: ['源码最适合边跑边读', '现在可以顺着<br>一条消息往下追了', '打开原始仓库继续读，或者在本地启动 Web 客户端，看看自己的插件树最终装成什么样。', '打开 GitHub ↗', '复制启动命令 ⧉'],
     footer: ['DEEPSEEK HARNESS / 源码解析', '内容来自公开仓库 · 非官方解读', '回到顶部 ↑'], copied: '已复制 ✓'
   },
@@ -85,7 +87,7 @@ function applyLocale(locale) {
   setText('.repo-link', t.source); $('#languageList').setAttribute('aria-label', t.language); $$('#languageList button').forEach(button => { const active = button.dataset.locale === locale; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
   setText('.eyebrow', t.hero[0]); $('.eyebrow').insertAdjacentHTML('afterbegin', '<span class="pulse"></span>'); setText('.hero h1', t.hero[1], true); setText('.hero-copy', t.hero[2], true); setText('.star-cta span:nth-child(2)', t.star); setText('.secondary-cta', t.hero[3], true); setList('.metrics div>span', t.hero[4]); setText('.scroll', `<span></span>${t.hero[5]}`, true);
   setText('.chapter-no', t.manifesto[0]); setText('.manifesto blockquote', t.manifesto[1]); setText('.manifesto>p', t.manifesto[2]); $$('.thesis-grid article').forEach((a,i)=>{a.querySelector('span').textContent=t.manifesto[3][i][0];a.querySelector('h3').textContent=t.manifesto[3][i][1];a.querySelector('p').textContent=t.manifesto[3][i][2]});
-  const heads = $$('.section-head'); [[t.architecture],[t.lifecycle],[t.client],[t.tools],[t.atlas]].forEach((group,i)=>{const h=heads[i],d=group[0];h.querySelector('span').textContent=d[0];h.querySelector('h2').innerHTML=d[1];h.querySelector(':scope>p').textContent=d[2]});
+  const heads = $$('.section-head'); [[t.architecture,0],[t.lifecycle,1],[t.client,2],[t.tools,3],[t.atlas,5]].forEach(([d,i])=>{const h=heads[i];h.querySelector('span').textContent=d[0];h.querySelector('h2').innerHTML=d[1];h.querySelector(':scope>p').textContent=d[2]});
   setList('.node small', t.nodeSmall); const activeDetail=$('.node.active')?.dataset.detail||'profile'; renderDetail(activeDetail,t);
   $$('.flow-track article').forEach((a,i)=>{a.querySelector('span').textContent=t.lifecycle[3][i][0];a.querySelector('h3').textContent=t.lifecycle[3][i][1];a.querySelector('p').textContent=t.lifecycle[3][i][2]});
   setList('.stack-rows article p',t.client[3]); setList('.projection span',t.client[4]);
@@ -104,4 +106,39 @@ const copy = async button => { await navigator.clipboard.writeText('npx @deepsee
 
 const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.classList.add('visible');if(entry.target.classList.contains('metrics'))entry.target.querySelectorAll('[data-count]').forEach(el=>{const end=+el.dataset.count,start=performance.now(),duration=1300;const tick=now=>{const p=Math.min((now-start)/duration,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)});observer.unobserve(entry.target)}),{threshold:.15});
 document.querySelectorAll('.chapter,.reveal,.metrics').forEach(el=>observer.observe(el));
+
+const sourceUrl = path => `https://github.com/deepseek-ai/deepseek-harness/blob/master/${path}`;
+const loopStages = [
+  ['01 / INPUT','消息进入 Inbox','followup(content) 把用户消息放进 Agent inbox。插入事件会立即发给 SDK，driver 随后被唤醒。','packages/core/agent/src/runtime-types.ts','agent/inbox/inserted'],
+  ['02 / STATUS','Agent 开始运行','Driver 把 Agent 状态切到 running。Web 客户端订阅 agent/status，界面会马上显示正在处理。','packages/core/agent-loop/src/agent.ts','agent/status · running'],
+  ['03 / TURN','打开一个 Turn','系统先写入 turn/start，再从 inbox 领取本轮输入。一次 Turn 可以包含多个模型 Step。','packages/core/agent-loop/src/agent.ts','turn/start'],
+  ['04 / PRE-STEP','插件检查本轮输入','agent/pre-step 是 waterfall。插件可以改写消息、拒绝本次 Step，或者调用 next() 把控制权交给下一层。','packages/core/agent-loop/src/agent.ts','agent/pre-step'],
+  ['05 / PROMPT','组装系统提示词','系统读取插件注册的提示词片段和工具 schema，再从 Session 日志生成模型历史。','packages/core/system-prompt/src/index.ts','system-prompt/assemble'],
+  ['06 / REQUEST','发起模型请求','agent/request 和 llm/stream 也是 waterfall。最终选中的 LLM provider 开始返回流式内容。','packages/llm/llm/src/index.ts','agent/request → llm/stream'],
+  ['07 / STREAM','Chunk 先写日志','每一段 assistant/chunk 都先进入追加式 Session 日志，然后通过 session/event 发给 Web 客户端。','packages/core/session/src/index.ts','assistant/chunk*'],
+  ['08 / MESSAGE','记录完整回复','流结束以后写入 assistant/message。即使回复为空或达到 max-tokens，用量和对应 chunk 仍会保留下来。','packages/core/agent-loop/src/agent.ts','assistant/message'],
+  ['09 / TOOL CALL','工具调用进入调度器','Driver 按 executionMode 给调用分类。屏障工具串行，允许并发的工具进入有上限的滚动池。','packages/core/agent-loop/src/tool-calls.ts','tool/call*'],
+  ['10 / TOOL PIPELINE','策略包住工具执行','调用依次经过 tools/pre-execute、单调守卫、tools/execute 和 tools/post-execute。','packages/core/tools/src/index.ts','pre → guards → execute → post'],
+  ['11 / RESULT','结果按模型顺序落盘','并发工具可以提前跑完，但 tool/result 仍按模型发起调用的顺序写进日志。页面据此完成工具卡片。','packages/core/agent-loop/src/tool-calls.ts','tool/result*'],
+  ['12 / SETTLE','继续下一 Step 或结束','还有消息或工具欠着工作，Driver 就领取下一批输入。自然停止以后触发 turn-stopping，最后写入 turn/end。','packages/core/agent-loop/src/agent.ts','step/end → turn/end'],
+];
+let loopIndex=0,loopTimer,loopPlaying=true;
+function renderLoop(index){loopIndex=index;const stage=loopStages[index];setText('#loopPhase',stage[0]);setText('#loopTitle',stage[1]);setText('#loopDescription',stage[2]);$('#loopSource').innerHTML=`<a href="${sourceUrl(stage[3])}" target="_blank" rel="noreferrer">${stage[3]} ↗</a>`;$$('#loopSteps button').forEach((button,i)=>button.classList.toggle('active',i===index));$('#eventLog').innerHTML=loopStages.slice(0,index+1).map((item,i)=>`<div class="${i===index?'current':''}"><i>${String(i+1).padStart(2,'0')}</i><code>${item[4]}</code></div>`).join('')}
+$('#loopSteps').innerHTML=loopStages.map((stage,i)=>`<button type="button"><i>${String(i+1).padStart(2,'0')}</i><span>${stage[1]}</span></button>`).join('');
+$$('#loopSteps button').forEach((button,i)=>button.addEventListener('click',()=>renderLoop(i)));
+function startLoop(){clearInterval(loopTimer);loopTimer=setInterval(()=>renderLoop((loopIndex+1)%loopStages.length),1900)}
+$('#loopPlay').addEventListener('click',()=>{loopPlaying=!loopPlaying;$('#loopPlay').textContent=loopPlaying?'暂停动画':'继续动画';loopPlaying?startLoop():clearInterval(loopTimer)});renderLoop(0);startLoop();
+
+function renderArchitecture(query=''){const needle=query.trim().toLowerCase();const groups=architectureCatalog.map(group=>({...group,packages:group.packages.filter(item=>`${group.group}/${item.name}`.includes(needle))})).filter(group=>!needle||group.packages.length);setText('#architectureGroupCount',groups.length);setText('#architecturePackageCount',groups.reduce((sum,group)=>sum+group.packages.length,0));$('#architectureGroups').innerHTML=groups.map(group=>`<article class="architecture-group"><button type="button" aria-expanded="false"><span>${group.group}</span><b>${group.packages.length} packages</b><em>${group.files} src files</em><i>＋</i></button><div>${group.packages.map(item=>`<a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/${item.path}" target="_blank" rel="noreferrer"><span>${item.name}</span><small>${item.files} files</small></a>`).join('')}</div></article>`).join('');$$('.architecture-group>button').forEach(button=>button.addEventListener('click',()=>{const open=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!open));button.parentElement.classList.toggle('open',!open);button.querySelector('i').textContent=open?'＋':'−'}))}
+$('#architectureSearch').addEventListener('input',event=>renderArchitecture(event.target.value));renderArchitecture();
+
+let activeToolCategory='All';const toolCategories=['All',...new Set(toolCatalog.map(tool=>tool.category))];
+function renderTools(query=''){const needle=query.trim().toLowerCase();const list=toolCatalog.filter(tool=>(activeToolCategory==='All'||tool.category===activeToolCategory)&&`${tool.name} ${tool.packageName} ${tool.description}`.toLowerCase().includes(needle));setText('#toolCount',list.length);$('#toolCatalog').innerHTML=list.map(tool=>`<button type="button" data-tool-index="${toolCatalog.indexOf(tool)}"><span>${tool.category}</span><b>${tool.name}</b><small>${tool.params.length} params</small></button>`).join('');$$('#toolCatalog button').forEach(button=>button.addEventListener('click',()=>renderToolDetail(toolCatalog[+button.dataset.toolIndex],button)))}
+function renderToolDetail(tool,button){$$('#toolCatalog button').forEach(item=>item.classList.toggle('active',item===button));$('#toolDetail').innerHTML=`<span>${tool.category}</span><h3>${tool.name}</h3><p>${tool.description}</p><dl><dt>参数</dt><dd>${tool.params.length?tool.params.map(param=>`<code>${param}</code>`).join(''):'<em>无参数</em>'}</dd><dt>插件包</dt><dd><code>${tool.packageName}</code></dd></dl><a href="${sourceUrl(tool.source)}" target="_blank" rel="noreferrer">查看源码 ${tool.source} ↗</a>`}
+$('#toolCategories').innerHTML=toolCategories.map((category,i)=>`<button type="button" data-category="${category}" class="${i===0?'active':''}">${category}<small>${category==='All'?toolCatalog.length:toolCatalog.filter(tool=>tool.category===category).length}</small></button>`).join('');
+$$('#toolCategories button').forEach(button=>button.addEventListener('click',()=>{activeToolCategory=button.dataset.category;$$('#toolCategories button').forEach(item=>item.classList.toggle('active',item===button));renderTools($('#toolSearch').value)}));$('#toolSearch').addEventListener('input',event=>renderTools(event.target.value));renderTools();
+
+const commandDescriptionsZh={'/feedback':'记录这次会话的反馈。','/goal':'设置、查看、修改、暂停、恢复或清除长期目标。','/plan':'进入或退出 Plan Mode，也可以带着一条规划消息进入。','/permission':'切换沙箱模式和审批策略预设。','/compact':'手动压缩较早的会话历史。','/export':'在 Web 客户端下载当前 Session 日志的 ZIP 文件。','/model':'打开模型选择器，切换 Provider 路由和模型。'};
+$('#commandCatalog').innerHTML=commandCatalog.map(command=>`<article><span>${command.category}</span><h3>${command.name}</h3><code>${command.name} ${command.input}</code><p>${commandDescriptionsZh[command.name]}</p><a href="${sourceUrl(command.source)}" target="_blank" rel="noreferrer">${command.source} ↗</a></article>`).join('');
+
 applyLocale('zh-CN');

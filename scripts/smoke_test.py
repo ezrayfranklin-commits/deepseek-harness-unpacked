@@ -18,11 +18,22 @@ with sync_playwright() as p:
     assert page.locator(".star-cta").get_attribute("href") == "https://github.com/ezrayfranklin-commits/deepseek-harness-unpacked"
     assert "Star" in page.locator(".star-cta").inner_text()
     assert page.locator("#languageList button:visible").count() == 4
+    assert page.locator("#toolCatalog button").count() == 52
+    assert page.locator("#architectureGroups .architecture-group").count() == 49
+    assert page.locator("#commandCatalog article").count() == 7
+    page.locator("#toolSearch").fill("cordis_")
+    assert page.locator("#toolCatalog button").count() == 7
+    page.locator("#toolCatalog button").first.click()
+    assert "@deepseek-ai/dsh-tool-cordis" in page.locator("#toolDetail").inner_text()
+    page.locator("#toolSearch").fill("")
+    page.locator("#architectureSearch").fill("ui-model-selection")
+    assert page.locator("#architectureGroups .architecture-group").count() == 1
+    page.locator("#architectureGroups .architecture-group>button").click()
+    assert page.locator("#architectureGroups a:visible").count() == 1
+    page.locator("#architectureSearch").fill("")
     line = page.locator(".assembly-lines .p1")
-    first_offset = line.evaluate("el => getComputedStyle(el).strokeDashoffset")
-    page.wait_for_timeout(700)
-    second_offset = line.evaluate("el => getComputedStyle(el).strokeDashoffset")
-    assert first_offset != second_offset
+    animation = line.evaluate("el => ({name: getComputedStyle(el).animationName, state: getComputedStyle(el).animationPlayState})")
+    assert animation["name"] == "drawLine" and animation["state"] == "running"
     for locale, title_text in [("en", "Source Unpacked"), ("es", "Código al descubierto"), ("ja", "ソースコード解説"), ("zh-CN", "源码解构")]:
         page.locator(f'#languageList [data-locale="{locale}"]').click()
         assert page.locator("html").get_attribute("lang") == locale
