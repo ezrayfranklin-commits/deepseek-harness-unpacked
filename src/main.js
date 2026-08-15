@@ -1,7 +1,7 @@
 const locales = {
   'zh-CN': {
     meta: ['DeepSeek Harness · 源码解构', 'DeepSeek Harness Web 客户端源码解析。读懂 Cordis 插件架构、Agent Loop、事件日志和 UI 渲染链路。'],
-    nav: ['架构', '循环', '客户端', '工具'], source: '源码 ↗', language: '选择语言',
+    nav: ['架构', '循环', '客户端', '工具'], source: '去 GitHub 点 Star ★', star: '去 GitHub 点个 Star', language: '选择语言',
     hero: ['源码阅读笔记 / RC.5', 'DeepSeek Harness<br><em>源码解构</em>', '你在 Web 客户端发出一条消息以后，代码接下来会做什么？这份拆解从 <strong>Cordis 插件树</strong>一路读到 Agent Loop，再顺着事件日志回到你眼前的界面。', '从架构开始 <span>↓</span>', ['仓库文件', 'TS / TSX 行', 'Workspace 包', '插件化'], '向下继续读'],
     manifesto: ['00 / 先抓住主线', '“不存在需要打补丁的特权内核。”', '我把仓库里的架构文档和关键包顺着读了一遍。Harness 最值得先看的，是它怎样把模型、工具、会话记录，连同 Agent Loop 一起装进 Cordis。你可以替换其中一块，其他部分照常工作。', [
       ['01', '所有功能都能装卸', '插件把能力挂到共享上下文里。插件卸载以后，它注册的内容也跟着撤掉。'],
@@ -35,7 +35,7 @@ const locales = {
   },
   en: {
     meta: ['DeepSeek Harness · Source Unpacked', 'A visual source tour of the DeepSeek Harness web client, Cordis plugins, the agent loop, event log, and UI rendering path.'],
-    nav: ['Architecture', 'Loop', 'Client', 'Tools'], source: 'SOURCE ↗', language: 'Select language',
+    nav: ['Architecture', 'Loop', 'Client', 'Tools'], source: 'STAR ON GITHUB ★', star: 'Star this project on GitHub', language: 'Select language',
     hero: ['SOURCE READING NOTES / RC.5', 'DeepSeek Harness<br><em>Source Unpacked</em>', 'What happens after you send a message from the web client? Follow the code from the <strong>Cordis plugin tree</strong> into the agent loop, then back through the event log to the interface on screen.', 'Start with architecture <span>↓</span>', ['Repository files', 'TS / TSX lines', 'Workspace packages', 'Plugin-based'], 'KEEP READING'],
     manifesto: ['00 / THE MAIN IDEA', '“There is no privileged kernel to patch.”', 'The defining choice in Harness is that models, tools, session storage, and even the agent loop all live as Cordis plugins. Replace one piece and the rest of the system can keep running.', [['01','Everything can be mounted','Plugins contribute capabilities to shared context. Unmount the plugin and its registrations disappear with it.'],['02','The log keeps the facts','Anything visible to the model must enter SessionEvent. Refreshes and replays rebuild from the same record.'],['03','Implementations are swappable','Filesystems, processes, and subagents sit behind stable seams. Local providers can move to a remote sandbox without rewriting consumers.']]],
     architecture: ['01 / SYSTEM MAP', 'Startup builds<br>a plugin tree', 'A profile lists bundles. Harness mounts them in order, then applies user configuration. Select a node to see what each layer contributes.'], nodeSmall:['assembled at startup','foundation','browser app','user config','temporary config'],
@@ -47,7 +47,7 @@ const locales = {
     cta:['READ THE SOURCE WHILE IT RUNS','Now you can follow<br>a message through the code','Continue in the original repository, or run the web client locally and inspect the plugin tree assembled on your machine.','Open GitHub ↗','Copy launch command ⧉'], footer:['DEEPSEEK HARNESS / SOURCE ANALYSIS','Based on the public repository · Unofficial guide','BACK TO TOP ↑'], copied:'Copied ✓'
   },
   es: {
-    meta:['DeepSeek Harness · Código al descubierto','Un recorrido visual por el cliente web de DeepSeek Harness, los plugins de Cordis, el bucle del agente, el registro de eventos y la interfaz.'],nav:['Arquitectura','Bucle','Cliente','Herramientas'],source:'CÓDIGO ↗',language:'Elegir idioma',
+    meta:['DeepSeek Harness · Código al descubierto','Un recorrido visual por el cliente web de DeepSeek Harness, los plugins de Cordis, el bucle del agente, el registro de eventos y la interfaz.'],nav:['Arquitectura','Bucle','Cliente','Herramientas'],source:'STAR EN GITHUB ★',star:'Dale una Star en GitHub',language:'Elegir idioma',
     hero:['NOTAS DE CÓDIGO / RC.5','DeepSeek Harness<br><em>Código al descubierto</em>','¿Qué ocurre después de enviar un mensaje desde el cliente web? Seguimos el código desde el <strong>árbol de plugins de Cordis</strong> hasta el bucle del agente, y volvemos a la interfaz a través del registro de eventos.','Empezar por la arquitectura <span>↓</span>',['Archivos','Líneas TS / TSX','Paquetes Workspace','Basado en plugins'],'SEGUIR LEYENDO'],
     manifesto:['00 / LA IDEA CENTRAL','“No existe un núcleo privilegiado que haya que parchear.”','Harness coloca los modelos, las herramientas, el registro de sesión e incluso el bucle del agente dentro de plugins de Cordis. Se puede sustituir una pieza sin rehacer el resto del sistema.',[['01','Todo se puede montar','Los plugins aportan capacidades al contexto compartido. Al desmontarlos, también desaparecen sus registros.'],['02','El registro conserva los hechos','Todo lo que ve el modelo entra en SessionEvent. La recarga y la reproducción parten del mismo registro.'],['03','Las implementaciones se cambian','Los archivos, procesos y subagentes usan interfaces estables. Un proveedor local puede pasar a un sandbox remoto sin cambiar sus consumidores.']]],
     architecture:['01 / MAPA DEL SISTEMA','El arranque construye<br>un árbol de plugins','Un perfil enumera varios paquetes. Harness los monta en orden y después aplica la configuración del usuario. Selecciona un nodo para ver qué añade cada capa.'],nodeSmall:['montaje inicial','base','aplicación web','configuración','configuración temporal'],
@@ -59,7 +59,7 @@ const locales = {
     cta:['LEE EL CÓDIGO MIENTRAS FUNCIONA','Ya puedes seguir<br>un mensaje por el código','Continúa en el repositorio original o ejecuta el cliente web y revisa el árbol de plugins de tu equipo.','Abrir GitHub ↗','Copiar comando ⧉'],footer:['DEEPSEEK HARNESS / ANÁLISIS DEL CÓDIGO','Basado en el repositorio público · Guía no oficial','VOLVER ARRIBA ↑'],copied:'Copiado ✓'
   },
   ja: {
-    meta:['DeepSeek Harness · ソースコード解説','DeepSeek Harness の Web クライアント、Cordis プラグイン、Agent Loop、イベントログ、UI 描画をたどるビジュアルガイド。'],nav:['構成','ループ','クライアント','ツール'],source:'SOURCE ↗',language:'言語を選択',
+    meta:['DeepSeek Harness · ソースコード解説','DeepSeek Harness の Web クライアント、Cordis プラグイン、Agent Loop、イベントログ、UI 描画をたどるビジュアルガイド。'],nav:['構成','ループ','クライアント','ツール'],source:'GITHUB で STAR ★',star:'GitHub で Star する',language:'言語を選択',
     hero:['ソース読解ノート / RC.5','DeepSeek Harness<br><em>ソースコード解説</em>','Web クライアントからメッセージを送ったあと、コードは何をするのでしょうか。<strong>Cordis のプラグインツリー</strong>から Agent Loop へ進み、イベントログを通って画面に戻るまでを追います。','構成から読む <span>↓</span>',['リポジトリ内のファイル','TS / TSX 行','Workspace パッケージ','プラグイン化'],'続きを読む'],
     manifesto:['00 / まず押さえること','「パッチを当てる特権的なカーネルは存在しない」','Harness はモデル、ツール、セッションログ、Agent Loop まで Cordis プラグインとして組み立てます。一つの実装を差し替えても、ほかの部分はそのまま動かせます。',[['01','すべて着脱できる','プラグインは共有コンテキストに機能を登録します。プラグインを外すと、その登録も一緒に消えます。'],['02','ログが事実を残す','モデルが見た内容は SessionEvent に記録されます。再読み込みとリプレイは同じ記録から復元します。'],['03','実装を交換できる','ファイルシステム、プロセス、サブ Agent は共通インターフェースの後ろにあります。呼び出し側を変えずにリモート環境へ移せます。']]],
     architecture:['01 / システムマップ','起動時に<br>プラグインツリーを組み立てる','Profile には複数の bundle が並びます。Harness は順番に読み込み、最後にユーザー設定を適用します。ノードを選ぶと各層の役割を確認できます。'],nodeSmall:['起動時に構成','基礎機能','ブラウザアプリ','ユーザー設定','一時設定'],
@@ -83,7 +83,7 @@ function applyLocale(locale) {
   document.documentElement.lang = locale;
   document.title = t.meta[0]; $('meta[name="description"]').content = t.meta[1];
   setList('#nav a', t.nav); setText('.repo-link', t.source); $('#languageSelect').setAttribute('aria-label', t.language); $('.language-picker .sr-only').textContent = t.language;
-  setText('.eyebrow', t.hero[0]); $('.eyebrow').insertAdjacentHTML('afterbegin', '<span class="pulse"></span>'); setText('.hero h1', t.hero[1], true); setText('.hero-copy', t.hero[2], true); setText('#hero .primary', t.hero[3], true); setList('.metrics div>span', t.hero[4]); setText('.scroll', `<span></span>${t.hero[5]}`, true);
+  setText('.eyebrow', t.hero[0]); $('.eyebrow').insertAdjacentHTML('afterbegin', '<span class="pulse"></span>'); setText('.hero h1', t.hero[1], true); setText('.hero-copy', t.hero[2], true); setText('.star-cta span:nth-child(2)', t.star); setText('.secondary-cta', t.hero[3], true); setList('.metrics div>span', t.hero[4]); setText('.scroll', `<span></span>${t.hero[5]}`, true);
   setText('.chapter-no', t.manifesto[0]); setText('.manifesto blockquote', t.manifesto[1]); setText('.manifesto>p', t.manifesto[2]); $$('.thesis-grid article').forEach((a,i)=>{a.querySelector('span').textContent=t.manifesto[3][i][0];a.querySelector('h3').textContent=t.manifesto[3][i][1];a.querySelector('p').textContent=t.manifesto[3][i][2]});
   const heads = $$('.section-head'); [[t.architecture],[t.lifecycle],[t.client],[t.tools],[t.atlas]].forEach((group,i)=>{const h=heads[i],d=group[0];h.querySelector('span').textContent=d[0];h.querySelector('h2').innerHTML=d[1];h.querySelector(':scope>p').textContent=d[2]});
   setList('.node small', t.nodeSmall); const activeDetail=$('.node.active')?.dataset.detail||'profile'; renderDetail(activeDetail,t);
@@ -100,7 +100,7 @@ document.querySelectorAll('.pipe').forEach(pipe => pipe.addEventListener('click'
 $('#languageSelect').addEventListener('change', e => applyLocale(e.target.value));
 
 const copy = async button => { await navigator.clipboard.writeText('npx @deepseek-ai/dsh web'); const old=button.innerHTML;button.textContent=locales[currentLocale].copied;setTimeout(()=>button.innerHTML=old,1600); };
-['copyCmd','copyCmd2'].forEach(id=>$(`#${id}`).addEventListener('click',e=>copy(e.currentTarget)));
+['copyCmd2'].forEach(id=>$(`#${id}`).addEventListener('click',e=>copy(e.currentTarget)));
 
 const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.classList.add('visible');if(entry.target.classList.contains('metrics'))entry.target.querySelectorAll('[data-count]').forEach(el=>{const end=+el.dataset.count,start=performance.now(),duration=1300;const tick=now=>{const p=Math.min((now-start)/duration,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)});observer.unobserve(entry.target)}),{threshold:.15});
 document.querySelectorAll('.chapter,.reveal,.metrics').forEach(el=>observer.observe(el));

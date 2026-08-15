@@ -15,6 +15,8 @@ with sync_playwright() as p:
     assert page.locator("section").count() >= 8
     assert page.locator("html").get_attribute("lang") == "zh-CN"
     assert "发出一条消息以后" in page.locator(".hero-copy").inner_text()
+    assert page.locator(".star-cta").get_attribute("href") == "https://github.com/ezrayfranklin-commits/deepseek-harness-unpacked"
+    assert "Star" in page.locator(".star-cta").inner_text()
     for locale, title_text in [("en", "Source Unpacked"), ("es", "Código al descubierto"), ("ja", "ソースコード解説"), ("zh-CN", "源码解构")]:
         page.locator("#languageSelect").select_option(locale)
         assert page.locator("html").get_attribute("lang") == locale
