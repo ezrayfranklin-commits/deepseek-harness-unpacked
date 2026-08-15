@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DeepSeek Harness Web 客户端源码交互式解析：Cordis 插件架构、Agent Loop、事件日志与 UI 渲染链路。" />
+  <meta name="theme-color" content="#05070a" />
+  <title>DeepSeek Harness · 源码解构</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css" />
+  <style>.hero{overflow:hidden}</style>
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <a class="brand" href="#hero"><span class="brand-mark">D</span><span>HARNESS / UNPACKED</span></a>
+    <nav id="nav">
+      <a href="#architecture">架构</a><a href="#lifecycle">循环</a><a href="#client">客户端</a><a href="#tools">工具</a>
+    </nav>
+    <a class="repo-link" href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noreferrer">SOURCE ↗</a>
+  </header>
+
+  <main>
+    <section id="hero" class="hero">
+      <div class="radar" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+      <div class="eyebrow reveal"><span class="pulse"></span> SOURCE FIELD REPORT / RC.5</div>
+      <h1 class="reveal">DeepSeek Harness<br><em>源码解构</em></h1>
+      <p class="hero-copy reveal">当你在 Web 客户端发出一条消息，背后究竟发生了什么？从 <strong>Cordis 插件树</strong>到 Agent Loop，从持久事件日志到 UI 投影——沿真实源码还原一次完整运行。</p>
+      <div class="hero-actions reveal"><a class="primary" href="#architecture">开始下潜 <span>↓</span></a><button class="ghost" id="copyCmd">npx @deepseek-ai/dsh web <span>⧉</span></button></div>
+      <div class="metrics reveal">
+        <div><strong data-count="7404">0</strong><span>仓库文件</span></div>
+        <div><strong data-count="564">0</strong><small>K+</small><span>TS / TSX 行</span></div>
+        <div><strong data-count="219">0</strong><span>Workspace 包</span></div>
+        <div><strong>100%</strong><span>插件化</span></div>
+      </div>
+      <a class="scroll" href="#manifesto"><span></span>SCROLL TO DECOMPILE</a>
+    </section>
+
+    <section id="manifesto" class="manifesto chapter">
+      <div class="chapter-no">00 / THESIS</div>
+      <blockquote>“不存在需要打补丁的特权内核。”</blockquote>
+      <p>Harness 最重要的设计不是又一个 Agent Loop，而是让模型适配器、工具注册表、会话日志，乃至循环本身都成为可挂载、可替换、可卸载的 Cordis 插件。</p>
+      <div class="thesis-grid">
+        <article><span>01</span><h3>一切皆插件</h3><p>能力通过共享上下文注册；插件卸载时，副作用随之撤销。</p></article>
+        <article><span>02</span><h3>日志即真相</h3><p>模型可见的输入必须可由 SessionEvent 日志完整重建。</p></article>
+        <article><span>03</span><h3>Seam 可替换</h3><p>接口、Provider 与 Consumer 分离，让本地能力可整体切换到远程沙箱。</p></article>
+      </div>
+    </section>
+
+    <section id="architecture" class="chapter architecture">
+      <div class="section-head"><div><span>01 / SYSTEM MAP</span><h2>运行时是一棵<br>插件树</h2></div><p>Profile 不是固定应用，而是一组按顺序叠加的组合包。点击节点查看它向运行时贡献了什么。</p></div>
+      <div class="system-map">
+        <div class="map-stage" id="mapStage">
+          <svg viewBox="0 0 900 420" aria-hidden="true">
+            <path d="M450 62V112M450 112H150V167M450 112H350V167M450 112H550V167M450 112H750V167M150 225V278M350 225V278M550 225V278M750 225V278" />
+          </svg>
+          <button class="node root active" data-detail="profile"><b>PROFILE / WEB</b><small>启动时组装</small></button>
+          <button class="node n1" data-detail="base"><b>dsh-base</b><small>基础能力</small></button>
+          <button class="node n2" data-detail="web"><b>dsh-web-app</b><small>浏览器应用</small></button>
+          <button class="node n3" data-detail="patch"><b>cordis.patch.yml</b><small>用户覆盖层</small></button>
+          <button class="node n4" data-detail="overlay"><b>--patch</b><small>临时 overlay</small></button>
+          <div class="leaf l1">LLM · Tools · Session</div><div class="leaf l2">Server · Client · RPC</div><div class="leaf l3">Replace · Insert</div><div class="leaf l4">Last-mile config</div>
+        </div>
+        <aside class="map-detail"><span id="detailTag">ROOT COMPOSITION</span><h3 id="detailTitle">Web Profile</h3><p id="detailText">按声明顺序装入组合包，再叠加 profile、home 与命令行 patch，最终生成可运行的 Cordis 插件树。</p><code id="detailCode">dsh --profile web --dump-config</code></aside>
+      </div>
+    </section>
+
+    <section id="lifecycle" class="chapter lifecycle">
+      <div class="section-head"><div><span>02 / AGENT LOOP</span><h2>一次消息的<br>完整旅程</h2></div><p>Turn 可以包含多个 Step；每个 Step 都是一次模型请求及其工具调用。横向滚动，跟踪控制权的交接。</p></div>
+      <div class="flow-track">
+        <div class="flow-line"></div>
+        <article><i>01</i><span>INPUT</span><h3>followup()</h3><p>消息进入 Agent inbox，唤醒 driver。</p><code>agent/inbox/inserted</code></article>
+        <article><i>02</i><span>PERSIST</span><h3>Turn 开启</h3><p>领取输入，并在会话日志写入边界。</p><code>turn/start</code></article>
+        <article><i>03</i><span>ASSEMBLE</span><h3>构造上下文</h3><p>拼接提示词片段、工具 schema 与历史。</p><code>agent/pre-step</code></article>
+        <article><i>04</i><span>STREAM</span><h3>模型生成</h3><p>流式 chunk 先落日志，再投影到 UI。</p><code>assistant/chunk*</code></article>
+        <article><i>05</i><span>EXECUTE</span><h3>工具批次</h3><p>按屏障与滚动池调度，结果保持模型顺序。</p><code>tool/call → result</code></article>
+        <article><i>06</i><span>SETTLE</span><h3>继续或结束</h3><p>仍欠工作则下一 Step，否则关闭 Turn。</p><code>turn/end</code></article>
+      </div>
+    </section>
+
+    <section id="client" class="chapter client">
+      <div class="section-head"><div><span>03 / WEB CLIENT</span><h2>UI 不是状态源<br>而是事件投影</h2></div><p>浏览器端通过连接层驱动 Agent，并消费 session/event。原始 chunk 被保留，因此刷新、回放与流式 UI 可以共享同一事实源。</p></div>
+      <div class="stack">
+        <div class="stack-labels"><span>BROWSER</span><span>TRANSPORT</span><span>HOST</span><span>RUNTIME</span></div>
+        <div class="stack-rows">
+          <article><b>apps/web</b><p>Vite 应用入口、静态资源、端到端测试</p><em>VIEW SHELL</em></article>
+          <article><b>packages/client/*</b><p>React 渲染、连接、布局、轨迹、主题、设置</p><em>CLIENT PLUGINS</em></article>
+          <article><b>webserver + sdk/jsonrpc</b><p>承载静态前端，跨边界传递命令与事件</p><em>BRIDGE</em></article>
+          <article><b>Agent + Session</b><p>活跃状态走 agent/*，可回放事实走 session/event</p><em>SOURCE OF TRUTH</em></article>
+        </div>
+      </div>
+      <div class="projection"><span>USER INTENT</span><b>→</b><span>AGENT INBOX</span><b>→</b><span>SESSION EVENTS</span><b>→</b><span>REACT NODES</span></div>
+    </section>
+
+    <section id="tools" class="chapter tools">
+      <div class="section-head"><div><span>04 / TOOL PIPELINE</span><h2>工具调用不是<br>直接执行</h2></div><p>权限、沙箱、超时、守卫和结果重写都作为瀑布事件插入流水线，不必侵入工具实现。</p></div>
+      <div class="pipeline">
+        <button class="pipe active" data-pipe="模型产出的 tool-call 先写入会话日志，UI 此时即可渲染 pending 卡片。"><i>01</i><b>LOG CALL</b><small>tool/call</small></button>
+        <button class="pipe" data-pipe="前置 waterfall 承载 hooks、权限检查与沙箱策略；监听器必须调用 next() 才会继续。"><i>02</i><b>PRE</b><small>permission · sandbox</small></button>
+        <button class="pipe" data-pipe="单调守卫只能拒绝或弃权，避免下游策略重新放宽已经收紧的边界。"><i>03</i><b>GUARDS</b><small>deny · abstain</small></button>
+        <button class="pipe" data-pipe="execute waterfall 包裹真正的工具体，适合实现 timeout、retry 和 metrics。"><i>04</i><b>EXECUTE</b><small>tool body</small></button>
+        <button class="pipe" data-pipe="后置处理可以接受、阻断、替换结果或附加上下文，随后结果被冻结。"><i>05</i><b>POST</b><small>normalize · finalize</small></button>
+        <button class="pipe" data-pipe="唯一的模型可见结果写入 session/event；UI 将 pending 卡片升级为 completed。"><i>06</i><b>RESULT</b><small>tool/result</small></button>
+      </div>
+      <div class="pipe-readout"><span>SELECTED STAGE</span><p id="pipeText">模型产出的 tool-call 先写入会话日志，UI 此时即可渲染 pending 卡片。</p></div>
+    </section>
+
+    <section class="chapter source-map">
+      <div class="section-head"><div><span>05 / REPOSITORY ATLAS</span><h2>从哪里开始读</h2></div><p>不要从 7,000 多个文件里随机漫游。这条路线覆盖 Web 客户端最重要的边界。</p></div>
+      <div class="file-grid">
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/apps/web" target="_blank"><span>ENTRY</span><h3>apps/web</h3><p>前端程序入口与整体验证。</p><b>01 ↗</b></a>
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/client/web-react" target="_blank"><span>RENDER</span><h3>client/web-react</h3><p>React 运行面与节点渲染。</p><b>02 ↗</b></a>
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/client/connection" target="_blank"><span>CONNECT</span><h3>client/connection</h3><p>客户端连接生命周期。</p><b>03 ↗</b></a>
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/core/agent-loop" target="_blank"><span>DRIVE</span><h3>core/agent-loop</h3><p>轮次、步骤与工具批次。</p><b>04 ↗</b></a>
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/core/session" target="_blank"><span>RECORD</span><h3>core/session</h3><p>追加式事件日志与投影。</p><b>05 ↗</b></a>
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/bundle/web-app" target="_blank"><span>COMPOSE</span><h3>bundle/web-app</h3><p>Web profile 的组合边界。</p><b>06 ↗</b></a>
+      </div>
+    </section>
+
+    <section class="cta chapter"><div><span>THE SOURCE IS THE SPEC</span><h2>现在，你知道<br>消息去了哪里。</h2><p>继续阅读原始仓库，或在本地启动 Web 客户端，亲手 dump 出自己的插件树。</p><div class="hero-actions"><a class="primary" target="_blank" href="https://github.com/deepseek-ai/deepseek-harness">打开 GitHub ↗</a><button class="ghost" id="copyCmd2">复制启动命令 ⧉</button></div></div></section>
+  </main>
+  <footer><span>DEEPSEEK HARNESS / SOURCE ANALYSIS</span><span>内容基于公开仓库 · 非官方解读</span><a href="#hero">BACK TO TOP ↑</a></footer>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
