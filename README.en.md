@@ -16,6 +16,14 @@ An interactive source-code guide to the DeepSeek Harness web client, available i
 - Commands registered by the web client and a practical source-reading route
 - Instant switching between Simplified Chinese, English, Spanish, and Japanese
 
+## Screenshots
+
+![DeepSeek Harness Unpacked home page](docs/images/hero.png)
+
+![Cordis architecture and source catalog](docs/images/architecture.png)
+
+![Complete tool tree grouped by responsibility](docs/images/tool-system.png)
+
 ## Run locally
 
 ```bash

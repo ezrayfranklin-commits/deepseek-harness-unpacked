@@ -16,6 +16,14 @@ DeepSeek Harness の Web クライアントをソースコードから読み解�
 - Web クライアントに登録されたコマンドと、実践的なソース読解ルート
 - 簡体字中国語、英語、スペイン語、日本語の即時切り替え
 
+## スクリーンショット
+
+![DeepSeek Harness Unpacked のホーム画面](docs/images/hero.png)
+
+![Cordis アーキテクチャとソース一覧](docs/images/architecture.png)
+
+![役割別に整理されたツールツリー](docs/images/tool-system.png)
+
 ## ローカルで実行
 
 ```bash

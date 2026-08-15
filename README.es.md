@@ -16,6 +16,14 @@ Una guía interactiva del código fuente del cliente web de DeepSeek Harness, di
 - Los comandos registrados por el cliente web y una ruta práctica para leer el código
 - Cambio inmediato entre chino simplificado, inglés, español y japonés
 
+## Capturas de pantalla
+
+![Página principal de DeepSeek Harness Unpacked](docs/images/hero.png)
+
+![Arquitectura de Cordis y catálogo del código](docs/images/architecture.png)
+
+![Árbol completo de herramientas agrupadas por función](docs/images/tool-system.png)
+
 ## Ejecutar en local
 
 ```bash

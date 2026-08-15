@@ -16,6 +16,14 @@
 - 查看 Web 客户端注册的命令和推荐的源码阅读路线
 - 在页面顶部随时切换简体中文、English、Español 和日本語
 
+## 网站截图
+
+![DeepSeek Harness Unpacked 首页](docs/images/hero.png)
+
+![Cordis 架构与源码目录](docs/images/architecture.png)
+
+![按职责展开的完整工具树](docs/images/tool-system.png)
+
 ## 本地运行
 
 ```bash
