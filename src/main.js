@@ -1,5 +1,16 @@
 import { architectureCatalog, commandCatalog, toolCatalog } from './generated-catalog.js';
 
+history.scrollRestoration = 'manual';
+function resetInitialScroll() {
+  if (location.hash) history.replaceState(null, '', `${location.pathname}${location.search}`);
+  const root = document.documentElement, previousBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+  window.scrollTo(0, 0);
+  requestAnimationFrame(() => requestAnimationFrame(() => { window.scrollTo(0, 0); root.style.scrollBehavior = previousBehavior; }));
+}
+resetInitialScroll();
+window.addEventListener('pageshow', event => { if (event.persisted) resetInitialScroll(); });
+
 const locales = {
   'zh-CN': {
     meta: ['DeepSeek Harness · 源码解构', 'DeepSeek Harness Web 客户端源码解析。读懂 Cordis 插件架构、Agent Loop、事件日志和 UI 渲染链路。'],

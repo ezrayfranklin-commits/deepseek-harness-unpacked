@@ -61,6 +61,8 @@ with sync_playwright() as p:
     mobile.screenshot(path=str(shots / "mobile.png"), full_page=True)
     comment_view = browser.new_page(viewport={"width": 571, "height": 660}, device_scale_factor=1)
     comment_view.goto("http://127.0.0.1:4173/#architecture", wait_until="networkidle")
+    assert comment_view.evaluate("scrollY") == 0
+    assert comment_view.evaluate("location.hash") == ""
     assert comment_view.locator("#languageList button:visible").count() == 4
     assert comment_view.locator(".map-stage .node:visible").count() == 5
     comment_view.screenshot(path=str(shots / "comment-571.png"), full_page=False)
